@@ -27,3 +27,5 @@ const ExpensesWiget =() =>{
 
     )
 }
+
+export default ExpensesWiget;

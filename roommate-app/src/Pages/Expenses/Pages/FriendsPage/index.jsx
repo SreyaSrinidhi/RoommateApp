@@ -1,10 +1,11 @@
 import React from 'react';
 import { FlatList } from 'react-native';
 import { useSelector } from 'react-redux';
-import FriendTile from "./PageLayout/Components/FriendTile";
+import ExpensesWiget from "./PageLayout/Components/ExpensesWiget";
 import Layout from "./PageLayout";
+import renderFriend from "./PageLayout/Components/FriendTile";
 
-const FriendsScreen = () => {
+const FriendsScreen = ({navigation}) => {
     const friends = useSelector((state) => state.expenses.friends);
     const expenses = useSelector((state) => state.expenses.expenses);
 
@@ -21,6 +22,10 @@ const FriendsScreen = () => {
         };
     });
 
+    const handlePress = (item) => {
+        navigation.navigate('Group', { name: item.name, friendId: item.id });
+    };
+
 
 
     return (
@@ -28,8 +33,7 @@ const FriendsScreen = () => {
             <ExpensesWiget />
             <FlatList
                 data={friendsWithBalances}
-                renderItem={FriendTile}
-                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => renderFriend({ item, onPress: handlePress })}
             />
         </Layout>
     );
