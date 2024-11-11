@@ -1,23 +1,22 @@
 // src/Pages/GroupScreen.js
 import React, { useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Modal, Alert } from 'react-native';
-
-const initialExpensesData = [
-    { id: '1', date: 'Mar 18', description: "Ellie's bakery", amount: 51.36, type: 'borrowed' },
-    { id: '2', date: 'Mar 10', description: 'Fuel up', amount: 24.03, type: 'lent' },
-    { id: '3', date: 'Mar 06', description: 'Movie night', amount: 2.50, type: 'lent' },
-    { id: '4', date: 'Mar 05', description: 'Date night in', amount: 31.40, type: 'lent' },
-    { id: '5', date: 'Mar 18', description: "Coffee shop", amount: 10.00, type: 'borrowed' },
-];
+import { useDispatch, useSelector } from 'react-redux';
+import { settleExpense } from '../../../../StateManagement/Slices/ExpensesSlice' // Import the settleExpense action
 
 const GroupScreen = ({ route }) => {
-    const { name } = route.params;
-    const [expensesData, setExpensesData] = useState(initialExpensesData);
+    const { name, friendId } = route.params;
+    const dispatch = useDispatch();
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedExpense, setSelectedExpense] = useState(null);
 
+    // Select expenses related to this friend from Redux
+    const expenses = useSelector((state) =>
+        state.expenses.expenses.filter((expense) => expense.friendId === friendId)
+    );
+
     // Calculate the balance by summing up the 'lent' and 'borrowed' amounts
-    const balance = expensesData.reduce((acc, item) => {
+    const balance = expenses.reduce((acc, item) => {
         return item.type === 'lent' ? acc + item.amount : acc - item.amount;
     }, 0);
 
@@ -27,8 +26,7 @@ const GroupScreen = ({ route }) => {
     };
 
     const handleSettleExpense = () => {
-        // Remove the settled expense from expensesData
-        setExpensesData(expensesData.filter((item) => item.id !== selectedExpense.id));
+        dispatch(settleExpense({ expenseId: selectedExpense.id, friendId })); // Dispatch action to settle expense
         setModalVisible(false);
         Alert.alert("Expense Settled", `The expense "${selectedExpense.description}" has been settled.`);
         setSelectedExpense(null);
@@ -59,7 +57,7 @@ const GroupScreen = ({ route }) => {
 
             <FlatList
                 ItemSeparatorComponent={() => <View className="h-3" />}
-                data={expensesData}
+                data={expenses}
                 renderItem={renderExpense}
                 keyExtractor={(item) => item.id}
             />

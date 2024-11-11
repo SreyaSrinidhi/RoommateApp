@@ -3,21 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Modal, FlatList, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { useDispatch, useSelector } from 'react-redux';
+import { addExpense } from "../../../../StateManagement/Slices/ExpensesSlice";
 
 const AddExpenseScreen = ({ navigation }) => {
+    const dispatch = useDispatch();
+    const membersData = useSelector((state) => state.expenses.friends); // Assume this holds friend list
     const [amount, setAmount] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
     const [splitModalVisible, setSplitModalVisible] = useState(false);
-    const [selectedMembers, setSelectedMembers] = useState(['You']); // Include "You" by default
+    const [selectedMembers, setSelectedMembers] = useState(['You']); // Store IDs in selectedMembers
     const [splitPercentages, setSplitPercentages] = useState({ You: '100' }); // Start with "You" at 100%
     const [splitType, setSplitType] = useState('equally'); // Track split type ("equally" or "custom")
-
-    const membersData = [
-        { id: '1', name: 'Alice' },
-        { id: '2', name: 'Bob' },
-        { id: '3', name: 'Charlie' },
-        // Add more members as needed
-    ];
+    const [description, setDescription] = useState(''); // New state for expense description
 
     useEffect(() => {
         // Update splits equally when selectedMembers changes
@@ -33,20 +31,17 @@ const AddExpenseScreen = ({ navigation }) => {
     }, [selectedMembers]);
 
     const toggleMember = (member) => {
-        if (selectedMembers.includes(member.name)) {
-            // Remove member and update splits
-            setSelectedMembers(selectedMembers.filter((m) => m !== member.name));
+        if (selectedMembers.includes(member.id)) {
+            setSelectedMembers(selectedMembers.filter((m) => m !== member.id));
             const updatedSplit = { ...splitPercentages };
             delete updatedSplit[member.name];
             setSplitPercentages(updatedSplit);
         } else {
-            // Add member
-            setSelectedMembers([...selectedMembers, member.name]);
+            setSelectedMembers([...selectedMembers, member.id]);
         }
     };
 
     const handleSplitChange = (name, value) => {
-        // Update split percentages and set splitType to "custom" if changes are detected
         if (!isNaN(value) && value.trim() !== '') {
             setSplitPercentages({
                 ...splitPercentages,
@@ -68,21 +63,24 @@ const AddExpenseScreen = ({ navigation }) => {
     };
 
     const saveExpense = () => {
-        if (!amount || selectedMembers.length === 0) {
-            Alert.alert("Incomplete Data", "Please enter an amount and select at least one member.");
+        if (!amount || selectedMembers.length === 0 || !description) {
+            Alert.alert("Incomplete Data", "Please enter an amount, description, and select at least one member.");
             return;
         }
 
-        // Here you can add functionality to save the expense, e.g., send it to an API or update a state.
-        console.log("Expense Saved:", {
-            amount,
-            selectedMembers,
+        // Prepare data to save expense
+        const expenseData = {
+            description,
+            amount: parseFloat(amount),
             splitPercentages,
             splitType,
-        });
+            date: new Date().toLocaleDateString(),
+            members: selectedMembers, // Now holds friend IDs
+        };
 
+        dispatch(addExpense(expenseData)); // Dispatch action to add expense
         Alert.alert("Success", "Expense has been saved.");
-        navigation.goBack(); // Go back after saving (optional)
+        navigation.goBack();
     };
 
     return (
@@ -91,12 +89,14 @@ const AddExpenseScreen = ({ navigation }) => {
                 {/* Expense Description */}
                 <View className="flex-row items-center space-x-2 mt-4">
                     <View className="bg-[#E0F7E9] p-2 rounded-md">
-                        <Icon name={'pencil'} size={20} color="#4A154B" />
+                        <Icon name="pencil" size={20} color="#4A154B" />
                     </View>
                     <TextInput
                         className="border-b border-gray-300 flex-1 text-lg text-[#4A154B]"
-                        placeholder="Discription"
+                        placeholder="Description"
                         placeholderTextColor="#9E9E9E"
+                        value={description}
+                        onChangeText={setDescription}
                     />
                 </View>
 
@@ -144,11 +144,14 @@ const AddExpenseScreen = ({ navigation }) => {
                     <View className="mt-4">
                         <Text className="text-gray-500">With:</Text>
                         <View className="flex-row flex-wrap">
-                            {selectedMembers.map((member, index) => (
-                                <View key={index} className="bg-gray-100 px-3 py-1 rounded-md m-1">
-                                    <Text className="text-[#4A154B] font-bold">{member}</Text>
-                                </View>
-                            ))}
+                            {selectedMembers.map((memberId) => {
+                                const member = membersData.find((m) => m.id === memberId);
+                                return (
+                                    <View key={memberId} className="bg-gray-100 px-3 py-1 rounded-md m-1">
+                                        <Text className="text-[#4A154B] font-bold">{member?.name || 'You'}</Text>
+                                    </View>
+                                );
+                            })}
                         </View>
                     </View>
                 )}
@@ -172,7 +175,7 @@ const AddExpenseScreen = ({ navigation }) => {
                                         onPress={() => toggleMember(item)}
                                     >
                                         <Text className="text-[#4A154B]">{item.name}</Text>
-                                        {selectedMembers.includes(item.name) && (
+                                        {selectedMembers.includes(item.id) && (
                                             <Icon name="check" size={20} color="#2BAC76" />
                                         )}
                                     </TouchableOpacity>
@@ -198,20 +201,23 @@ const AddExpenseScreen = ({ navigation }) => {
                     <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
                         <View className="bg-white p-4 rounded-lg w-3/4">
                             <Text className="text-lg font-bold text-[#4A154B] mb-4">Set Split Percentages</Text>
-                            {selectedMembers.map((member) => (
-                                <View key={member} className="flex-row justify-between items-center py-2">
-                                    <Text className="text-[#4A154B]">{member}</Text>
-                                    <TextInput
-                                        className="border border-gray-300 rounded-md px-2 py-1 text-right"
-                                        placeholder="0"
-                                        placeholderTextColor="#9E9E9E"
-                                        keyboardType="numeric"
-                                        value={splitPercentages[member]?.toString() || ''}
-                                        onChangeText={(value) => handleSplitChange(member, value)}
-                                    />
-                                    <Text className="text-[#4A154B] ml-2">%</Text>
-                                </View>
-                            ))}
+                            {selectedMembers.map((memberId) => {
+                                const member = membersData.find((m) => m.id === memberId);
+                                return (
+                                    <View key={memberId} className="flex-row justify-between items-center py-2">
+                                        <Text className="text-[#4A154B]">{member?.name || 'Unknown'}</Text>
+                                        <TextInput
+                                            className="border border-gray-300 rounded-md px-2 py-1 text-right"
+                                            placeholder="0"
+                                            placeholderTextColor="#9E9E9E"
+                                            keyboardType="numeric"
+                                            value={splitPercentages[member?.name]?.toString() || ''}
+                                            onChangeText={(value) => handleSplitChange(member?.name, value)}
+                                        />
+                                        <Text className="text-[#4A154B] ml-2">%</Text>
+                                    </View>
+                                );
+                            })}
                             <TouchableOpacity
                                 className="bg-[#2BAC76] mt-4 p-2 rounded-lg items-center"
                                 onPress={() => setSplitModalVisible(false)}
@@ -235,4 +241,3 @@ const AddExpenseScreen = ({ navigation }) => {
 };
 
 export default AddExpenseScreen;
-
