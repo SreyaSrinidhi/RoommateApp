@@ -31,9 +31,7 @@ Layout.SettleExpenseModal = ({ visible, children, onClose }) => (
         <TouchableWithoutFeedback onPress={onClose}>
             <View className="flex-1 justify-center items-center bg-black/50">
                 <TouchableWithoutFeedback>
-                    <View className="w-72 p-6 bg-[#EDEFF7] rounded-xl items-center">
-                        {children}
-                    </View>
+                    {children}
                 </TouchableWithoutFeedback>
             </View>
         </TouchableWithoutFeedback>

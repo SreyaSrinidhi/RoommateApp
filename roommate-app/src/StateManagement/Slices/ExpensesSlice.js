@@ -8,7 +8,6 @@ const initialState = {
         {id:"10", name: "Sachin Tendulkar"},
         {id:"45", name: "Rohit Sharma"},
         {id:'7', name: 'MS Dhoni'},
-
         // Add more friends if needed
     ],
     expenses: [
@@ -24,11 +23,9 @@ const expensesSlice = createSlice({
     initialState,
     reducers: {
         addExpense: (state, action) => {
-            const newExpense = {
-                ...action.payload,
-                id: `${Date.now()}`,
-            };
-            state.expenses.push(transformExpense(newExpense));
+            const baseId = `${Date.now()}`; // Generate a unique base ID for each batch
+            const newExpenses = transformExpense({ ...action.payload, id: baseId });
+            state.expenses.push(...newExpenses);
         },
         settleExpense: (state, action) => {
             const { expenseId } = action.payload;
@@ -38,17 +35,20 @@ const expensesSlice = createSlice({
 });
 
 function transformExpense(expense) {
-    const friendId = expense.members.find(member => member !== 'You');
-    const splitAmount = expense.amount * (parseFloat(expense.splitPercentages[friendId]) / 100);
+    const friendIds = expense.members.filter(member => member !== 'You');
 
-    return {
-        id: expense.id,
-        friendId: friendId,
-        date: expense.date,
-        description: expense.description,
-        amount: splitAmount,
-        type: 'lent'
-    };
+    // Return an array of expenses, one for each friend
+    return friendIds.map((friendId, index) => {
+        const splitAmount = expense.amount * (parseFloat(expense.splitPercentages[friendId]) / 100);
+        return {
+            id: `${expense.id}-${index}`,  // Unique ID for each friend's expense
+            friendId: friendId,
+            date: expense.date,
+            description: expense.description,
+            amount: splitAmount,
+            type: 'lent'
+        };
+    });
 }
 
 export const { addExpense, settleExpense } = expensesSlice.actions;
