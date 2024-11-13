@@ -16,6 +16,9 @@ web-build/
 *.key
 *.mobileprovision
 
+#Native Testing Library
+coverage/
+
 # Metro
 .metro-health-check*
 

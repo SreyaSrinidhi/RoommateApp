@@ -1,14 +1,16 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import HomePage from '../src/Pages/HomePage'; // Adjust the import based on your file structure
-import LoginPage from '../src/Pages/LoginPage';  //for testing navigation
 import { Provider } from 'react-redux';
-import { store } from '../src/StateManagement/store'; // Adjust as necessary
+import { store } from '../src/StateManagement/store'; 
+import { configureStore } from '@reduxjs/toolkit';  //needed to mock redux store
 import { NavigationContainer } from '@react-navigation/native'; // needed to mock page navigation since HomePage uses navigation hook
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import HomePage from '../src/Pages/HomePage'; 
+import Tabs from '../src/Components/Tabs'
 import { Calendar } from 'react-native-calendars';
 
-describe('HomePage', () => {
+//tests to see if page rendered correctly - NOT FUNCTIONAL TESTING
+describe('HomePage Render Tests', () => {
     //rendering tests
     test('renders tiles', () => {
         const { getByTestId } = render(
@@ -24,37 +26,49 @@ describe('HomePage', () => {
         // Check if the tile for navigating to the Calendar is rendered
         expect(getByTestId('calendar-tile')).toBeTruthy();
     })
+})
 
-    //behavior tests
-    test('navigates to Calendar Page when clicking Calendar tile', () => {
-        //create a bottom tab navigator for testing
-        const Tab = createBottomTabNavigator();
 
-        const { getByTestId, getAllByText } = render(
-            <Provider store={store}>
-                <NavigationContainer>
-                    <Tab.Navigator>
-                        <Tab.Screen name="Home" component={HomePage} />
-                        {/* Mock the Calendar Page */}
-                        <Tab.Screen name="Calendar" component={Calendar} />
-                    </Tab.Navigator>
-                </NavigationContainer>
+//****FUNCTIONAL TESTS BELOW***********
+// Define a mock reducer for mocking store
+const mockReducer = {
+    user: (state = { id: null }, action) => state, // simple reducer for 'user'
+    calendar: (state = {}, action) => state, // simple reducer for 'calendar'
+    emergency: (state = {}, action) => state, // simple reducer for 'emergency'
+};
+//mock pagesList for navigation
+const pagesList = [
+    { name: 'Home', component: HomePage },
+    { name: 'Calendar', component: Calendar },
+    // Add other pages as needed
+];
+
+describe('HP-1: Navigate to Page from Tile', () => {
+    let mockedStore;  //define a store for our mock
+
+    beforeEach(() => {
+        //initialize mocked store with logged in
+        mockedStore = configureStore({
+            reducer: mockReducer,  //pass the mock reducer
+            preloadedState: {
+                user: { id: 'test-user-id'}, //NOTE - for now without authentication, this will work - post auth, may need to be changed
+            },
+        });
+    });
+
+    test('HP-1: Navigates to page when clicking on a tile', async () => {
+        const { getByTestId, findByText } = render(
+            <Provider store={mockedStore}>
+                <Tabs pagesList={pagesList} />
             </Provider>
         );
 
+        //find the calendar tile and simulate a press
         const calendarTile = getByTestId('calendar-tile'); // Use the testID to find the element
+        fireEvent.press(calendarTile);   //simulate clicking on tile
 
-        //simulate clicking on tile
-        fireEvent.press(calendarTile); 
-
-        //check if the calendar page is now rendered
-        //expect(getByText('Calendar Page')).toBeTruthy(); // Check for the Calendar Page
-
-        // Check that Calendar Page is now rendered
-        // Check that the text "Calendar" is present, and there are the correct number of instances
-        
-        /* TODO - FIX
-        const calendarElements = getAllByText('Calendar');
-        expect(calendarElements).toHaveLength(2); // Ensure there's exactly one  */
+        //assert that the Calendar page is displayed by checking for a specific content on that page
+        const calendarPageTitle = findByText(/Calendar/i);
+        expect(calendarPageTitle).toBeTruthy()
     })
 })

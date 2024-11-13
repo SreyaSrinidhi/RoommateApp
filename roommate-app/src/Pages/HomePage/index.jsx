@@ -11,13 +11,14 @@ export default function HomePage() {
         <View>
             <ScrollView className="p-4 bg-[#4B225F]">
                 {/* Row 1: wide container for recent updates */}
-                <View className="flex-row justify-center mb-3" testID="updates-tile">
+                <View className="flex-row justify-center mb-3">
                     <FeatureTile
                         flex="flex-1"
                         bgColor="bg-blue-500"
                         text="Recent Updates"
                         TileComponent={Updates}
                         onPress={() => console.log('Should make it so no function pass needed :/')}
+                        testID="updates-tile"
                     />
                 </View>
 
@@ -28,23 +29,26 @@ export default function HomePage() {
                         bgColor="bg-green-500"
                         text="Tall Tile 1"
                         onPress={() => console.log('Change me to navigation to go to a page!')}
+                        testID="blank-tile-1"
                     />
                     <FeatureTile
                         flex="flex-1"
                         bgColor="bg-red-500"
                         text="Tall Tile 2"
                         onPress={() => console.log('Change me to navigation to go to a page!')}
+                        testID="blank-tile-2"
                     />
                 </View>
 
                 {/* Row 3: Calendar widget */}
-                <View className="flex-row justify-center mb-3" testID="calendar-tile">
+                <View className="flex-row justify-center mb-3">
                     <FeatureTile
                         flex="flex-1"
                         bgColor="bg-blue-500"
                         text="Wide Tile - Full Width"
                         TileComponent={CalendarWidget}
                         onPress={() => navigation.navigate('Calendar')}
+                        testID="calendar-tile"
                     />
                 </View>
 
@@ -56,12 +60,14 @@ export default function HomePage() {
                         bgColor="bg-purple-500"
                         text="2/3 Width Tile"
                         onPress={() => console.log('Change me to navigation to go to a page!')}
+                        testID="blank-tile-3"
                     />
                     <FeatureTile
                         flex="flex-2"
                         bgColor="bg-yellow-500"
                         text="1/3 Width Tile"
                         onPress={() => console.log('Change me to navigation to go to a page!')}
+                        testID="blank-tile-4"
                     />
                 </View>
             </ScrollView>

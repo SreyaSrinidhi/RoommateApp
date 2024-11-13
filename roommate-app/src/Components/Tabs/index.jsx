@@ -15,6 +15,7 @@ const Tabs = ({ pagesList }) => {
     const AuthPage = isSigningUp ? SignUpPage : LoginPage;
 
     if (!id) {
+        console.log("No Id found")
         return (
             <NavigationContainer>
                 <AuthPage onSwitch={() => setIsSigningUp(!isSigningUp)} />
