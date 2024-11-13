@@ -7,10 +7,10 @@ const Tabs = ({ pagesList }) => {
     const Tab = createBottomTabNavigator();
     const { id } = useSelector((state) => state.user); // Grab the user's ID from the Redux store
 
-    // if (!id) {
-    //     const LoginPage = pagesList.find(page => page.name === "Login").component;
-    //     return <LoginPage />;
-    // }
+    if (!id) {
+        const LoginPage = pagesList.find(page => page.name === "Login").component;
+        return <LoginPage />;
+    }
 
     return (
         <Tab.Navigator id={1}>
