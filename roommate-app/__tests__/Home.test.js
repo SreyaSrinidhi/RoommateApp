@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, } from '@testing-library/react-native';
+import { render, fireEvent, act} from '@testing-library/react-native';
 import { Provider } from 'react-redux';
 import { store } from '../src/StateManagement/store'; 
 import { configureStore } from '@reduxjs/toolkit';  //needed to mock redux store
@@ -65,7 +65,10 @@ describe('HP-1: Navigate to Page from Tile', () => {
 
         //find the calendar tile and simulate a press
         const calendarTile = getByTestId('calendar-tile'); // Use the testID to find the element
-        fireEvent.press(calendarTile);   //simulate clicking on tile
+
+        act(() => {
+            fireEvent.press(calendarTile);   //simulate clicking on tile
+        });
 
         //assert that the Calendar page is displayed by checking for a specific content on that page
         const calendarPageTitle = findByText(/Calendar/i);
@@ -81,7 +84,10 @@ describe('HP-1: Navigate to Page from Tile', () => {
 
         //find the updates tile and simulate press 
         const updatesTile = await findByText('Click me to see updates');   //not sure why this needs await while other above doesn't...
-        fireEvent.press(updatesTile)
+
+        act(() => {
+            fireEvent.press(updatesTile)
+        });
 
         //assert that the updates modal is displayed
         const updatesModalTitle = await findByText('Updates:');  //NOTE - text sensitive - if this component changes, this text must change

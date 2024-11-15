@@ -1,48 +1,87 @@
 import React from 'react';
-import { Text} from 'react-native';
-import { render, screen, fireEvent } from '@testing-library/react-native';
+import { Text, Alert } from 'react-native';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
 import LoginPage from '../src/Pages/LoginPage';
 import HomePage from '../src/Pages/HomePage'
 import { Provider } from 'react-redux';
 import { store } from '../src/StateManagement/store'
 import { NavigationContainer } from '@react-navigation/native';
 import { createStore } from 'redux';
+import { configureStore } from '@reduxjs/toolkit';  //needed to mock redux store
 import Tabs from '../src/Components/Tabs';
 import { initialState, rootReducer } from '../src/StateManagement/store'; // Import your initial state and rootReducer
 
 
 //A file for testing the functionality of the login page
 
-//describe is used to create a block of tests for organization purposes - can describe multiple things in one file
-describe('LoginPage', () => {
-    //Rendering Tests - test renders correctly with username and password input fields, login button
-    test('renders LoginPage with input fields and login button', () => {
-        render(
-            //make sure to provide the store context to the page when rendering
-            <Provider store={store}> 
-                <LoginPage />
-            </Provider> 
+describe('LS-1: Attempt login with incorrect input type', () => {  //incorrect type will be empty username for now
+
+    //mock the Alert.alert function for checking login fail alerts
+    jest.spyOn(Alert, 'alert')
+
+    test('Rejects login request if incorrect type for username', async () => {
+        //render the login page
+        const { getByPlaceholderText, getByText, queryByText } = render(
+            <Provider store={store}>
+                <Tabs pagesList={[{ name: "Login", component: LoginPage }, { name: "Home", component: HomePage }]} />
+            </Provider>
         );
-        expect(screen.getByPlaceholderText("Enter your username")).toBeTruthy();    //NOTE - finding element based on its EXACT placeholder text
-        expect(screen.getByPlaceholderText("Enter your password")).toBeTruthy();
-        expect(screen.getByText("Login")).toBeTruthy();
+
+        //get the necessary inputs and login button
+        const usernameInput = screen.getByPlaceholderText("Enter your username");
+        const passwordInput = screen.getByPlaceholderText("Enter your password");
+        const loginButton = screen.getByText("Login");
+
+        //simulate entering empty username and password
+        fireEvent.changeText(usernameInput, '');
+        fireEvent.changeText(passwordInput, 'password123');
+
+        //simulate pressing the login button
+        fireEvent.press(loginButton);
+        
+
+        // Check that Alert.alert was called with the expected message
+        await waitFor(() => {
+            expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please enter both username and password.');
+        })
     })
+})
+
+describe('LS-2: Attempt login with incorrect username or password', () => {  //will be empty password for now
+    //mock the Alert.alert function for checking login fail alerts
+    jest.spyOn(Alert, 'alert')
+
+    test('Rejects login request if incorrect username and password combo', async () => {
+        //render the login page
+        const { getByPlaceholderText, getByText, queryByText } = render(
+            <Provider store={store}>
+                <Tabs pagesList={[{ name: "Login", component: LoginPage }, { name: "Home", component: HomePage }]} />
+            </Provider>
+        );
+
+        //get the necessary inputs and login button
+        const usernameInput = screen.getByPlaceholderText("Enter your username");
+        const passwordInput = screen.getByPlaceholderText("Enter your password");
+        const loginButton = screen.getByText("Login");
 
 
-    // Mock a Redux store for testing
-    const mockStore = (overrides) => {
-        return createStore((state = initialState, action) => {
-            return {
-                ...state,
-                ...overrides, // Override the initial state for the test
-            };
-        });
-    };
+        //simulate entering empty username and password
+        fireEvent.changeText(usernameInput, 'userName');
+        fireEvent.changeText(passwordInput, '');
 
-    //Input Tests - test that login button works under correct conditions
-    test('navigates to HomePage when login pressed if inputs filled', () => {
-        const testStore = mockStore({ user: { id: null } }); // Simulate not logged in
+        //simulate pressing the login button
+        fireEvent.press(loginButton);
+        
 
+        // Check that Alert.alert was called with the expected message
+        await waitFor(() => {
+            expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please enter both username and password.');
+        })
+    })
+}) 
+
+describe('LS-3: Login with Correct Username and Password', () => {
+    test('Navigates to HomePage when login pressed if inputs filled correctly', async () => {
         const { getByPlaceholderText, getByText, queryByText } = render(
             <Provider store={store}>
                 <Tabs pagesList={[{ name: "Login", component: LoginPage }, { name: "Home", component: HomePage }]} />
@@ -61,13 +100,84 @@ describe('LoginPage', () => {
         fireEvent.press(loginButton);
 
         //Assert that LoginPage is no longer rendered
-        expect(screen.queryByText('Login')).toBeNull(); // Ensure Login button is gone
-        expect(screen.queryByPlaceholderText('Enter your username')).toBeNull(); // Ensure username input is gone
-        expect(screen.queryByPlaceholderText('Enter your password')).toBeNull(); // Ensure password input is gone
+        await waitFor(() => {
+            expect(screen.queryByText('Login')).toBeNull(); // Ensure Login button is gone
+            expect(screen.queryByPlaceholderText('Enter your username')).toBeNull(); // Ensure username input is gone
+            expect(screen.queryByPlaceholderText('Enter your password')).toBeNull(); // Ensure password input is gone
+        })
+        
 
         // Check that Home Page is now rendered
         // Check that the text "Home" is present, and there are the correct number of instances
         const homeElements = screen.getAllByText('Home');
         expect(homeElements).toHaveLength(2); // Ensure there's exactly one
+    })
+})
+
+// Define a mock reducer for mocking store - needed  for future tests now that login has occurred above in real store
+const mockReducer = {
+    user: (state = { id: null }, action) => state, // simple reducer for 'user'
+    calendar: (state = {}, action) => state, // simple reducer for 'calendar'
+    emergency: (state = {}, action) => state, // simple reducer for 'emergency'
+};
+
+describe('LS-4: Sign Up Page Opens From Its Button', () => {
+    let mockedStore;  //define a store for our mock
+
+    beforeEach(() => {
+        //initialize mocked store with logged in
+        mockedStore = configureStore({
+            reducer: mockReducer,  //pass the mock reducer
+        });
+    });
+
+    test('Opens Sign Up modal when Signup button pressed', async () => {
+        const { getByPlaceholderText, getByText, queryByText, findByText } = render(
+            <Provider store={mockedStore}>
+                <Tabs pagesList={[{ name: "Login", component: LoginPage }, { name: "Home", component: HomePage }]} />
+            </Provider>
+        );
+
+        const signupButton = screen.getByText('Click here to Sign Up'); // Use the testID to find the element
+
+        //simulate pressing the signup button
+        fireEvent.press(signupButton);
+
+        const signupModalTitle = await findByText('Create an Account');  //NOTE - text sensitive - if this component changes, this text must change
+
+        //Assert that LoginPage is no longer rendered
+        expect(signupModalTitle).toBeTruthy();
+    })
+});
+
+describe('LS-5: Fill in Invalid Input Data', () => {
+
+});
+
+describe('LS-6: Fill in Non-Matching Passwords', () => {
+    
+});
+
+describe('LS-7: Fill in Valid Information', () => {
+    
+});
+
+
+
+//Non-Functiona Render Tests
+
+//describe is used to create a block of tests for organization purposes - can describe multiple things in one file
+describe('LoginPage Render Tests', () => {
+    //Rendering Tests - test renders correctly with username and password input fields, login button
+    test('renders LoginPage with input fields and login button', () => {
+        render(
+            //make sure to provide the store context to the page when rendering
+            <Provider store={store}> 
+                <LoginPage />
+            </Provider> 
+        );
+        expect(screen.getByPlaceholderText("Enter your username")).toBeTruthy();    //NOTE - finding element based on its EXACT placeholder text
+        expect(screen.getByPlaceholderText("Enter your password")).toBeTruthy();
+        expect(screen.getByText("Login")).toBeTruthy();
     })
 })

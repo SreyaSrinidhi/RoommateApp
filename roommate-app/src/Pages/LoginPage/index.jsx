@@ -66,7 +66,7 @@ const LoginPage = ({ onSwitch }) => {
                 </TouchableOpacity>
             </Animated.View>
 
-            <TouchableOpacity onPress={onSwitch}>
+            <TouchableOpacity onPress={onSwitch} testID="signup-button">
                 <Text className="text-[#4A154B] text-sm">Click here to Sign Up</Text>
             </TouchableOpacity>
         </View>
