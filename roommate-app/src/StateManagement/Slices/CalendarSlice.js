@@ -23,8 +23,13 @@ const calendarSlice = createSlice({
             if (!state.tasks[date]) {
                 state.tasks[date] = [];
             }
-            state.tasks[date].push({ ...task, id: uuid.v4(), created: "User X"}); // Assign unique id to new task
+            state.tasks[date].push({
+                ...task,
+                id: uuid.v4(), // Ensure unique id
+                created: "User X",
+            });
         },
+
         editTask: (state, action) => {
             const { date, taskId, updatedTask } = action.payload;
             const taskIndex = state.tasks[date]?.findIndex(task => task.id === taskId);
