@@ -1,9 +1,11 @@
 import React from "react";
-import { render, fireEvent } from "@testing-library/react-native";
+import { screen, render, fireEvent } from "@testing-library/react-native";
 import { Provider } from "react-redux";
 import configureStore from "redux-mock-store";
 import Task from "../src/Pages/Calander/PageLayout/Components/Tasks/index";
 import AddEventModal from "../src/Pages/Calander/PageLayout/Components/AddEventModal/index";
+import CalendarPage from "../src/Pages/Calander";
+import Tabs from "../src/Components/Tabs";
 import { CalendarContext } from "../src/Pages/Calander/Context";
 
 const mockStore = configureStore([]);
@@ -22,6 +24,8 @@ const initialState = {
             ],
         },
     },
+    user: { id: '123' },
+    emergency: {},
 };
 const store = mockStore(initialState);
 
@@ -157,4 +161,19 @@ describe("Calendar Page Tests", () => {
         expect(queryByText("PHYS 121 Labs")).toBeFalsy(); // The task should not appear
         expect(queryByText("No tasks for the selected date.")).toBeTruthy();
     });
+
+    //check that calendar page overall rendering
+    it("renders calendar page correctly", () => {
+        const { getByTestId, queryAllByText } = render(
+            <Provider store={store}>
+                <CalendarContext.Provider value={mockContextValue}>
+                    <Tabs pagesList={[{ name: "Calendar", component: CalendarPage }]} />
+                </CalendarContext.Provider>
+            </Provider>
+        );
+
+        const calendarElements = queryAllByText("Calendar");
+        expect(calendarElements.length).toBeGreaterThan(0);  //at least one element saying calendar
+        expect(getByTestId('calendar-widget')).toBeTruthy();
+    })
 });
