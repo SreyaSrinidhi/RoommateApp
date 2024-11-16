@@ -6,13 +6,6 @@ import {useSelector} from "react-redux";
 import {EmergencyContext, EmergencyProvider} from "./Context";
 
 
-// const buttons = [
-//     { bgColor: 'bg-blue-500', title: 'Button 1', message: 'Emergency message 1'},
-//     { bgColor: 'bg-red-500', title: 'Button 2', message: 'Emergency message 2' },
-//     { bgColor: 'bg-green-500', title: 'Button 3', message: 'Emergency message 3' },
-//     { bgColor: 'bg-yellow-500', title: 'Button 4', message: 'Emergency message 4' },
-//   ];
-
 export default function EmergencyNotifications( {navigation} ) {
     const {buttons} = useSelector(state => state.emergency);
 

@@ -124,15 +124,13 @@ const mockReducer = {
 describe('LS-4: Sign Up Page Opens From Its Button', () => {
     let mockedStore;  //define a store for our mock
 
-    beforeEach(() => {
-        //initialize mocked store with logged in
-        mockedStore = configureStore({
-            reducer: mockReducer,  //pass the mock reducer
-        });
+    //initialize mocked store with logged in
+    mockedStore = configureStore({
+        reducer: mockReducer,  //pass the mock reducer
     });
 
     test('Opens Sign Up modal when Signup button pressed', async () => {
-        const { getByPlaceholderText, getByText, queryByText, findByText } = render(
+        const { getByText, findByText } = render(
             <Provider store={mockedStore}>
                 <Tabs pagesList={[{ name: "Login", component: LoginPage }, { name: "Home", component: HomePage }]} />
             </Provider>
@@ -151,15 +149,157 @@ describe('LS-4: Sign Up Page Opens From Its Button', () => {
 });
 
 describe('LS-5: Fill in Invalid Input Data', () => {
+    jest.spyOn(Alert, 'alert')   //mock Alerts
+    let mockedStore;  //define a store for our mock
 
+    //initialize mocked store with logged in
+    mockedStore = configureStore({
+        reducer: mockReducer,  //pass the mock reducer
+    });
+
+    test('Fail to submit new user when input data invalid', async () => {
+        const { getByText, getByPlaceholderText } = render(
+            <Provider store={mockedStore}>
+                <Tabs pagesList={[{ name: "Login", component: LoginPage }, { name: "Home", component: HomePage }]} />
+            </Provider>
+        );
+
+        //open the sign up modal (same code as in LS-4)
+        const signupButton = screen.getByText('Click here to Sign Up'); // Use the testID to find the element
+        fireEvent.press(signupButton); //simulate pressing the signup button
+
+        const usernameInput = screen.getByPlaceholderText("Enter your username");
+        const emailInput = screen.getByPlaceholderText("Enter your email");
+        const passwordInput = screen.getByPlaceholderText("Enter your password");
+        const confirmPassowrdInput = screen.getByPlaceholderText("Confirm your password");
+        const signupConfirmButton = screen.getByText('Sign Up'); // Use the testID to find the element
+
+        //simulate entering empty username, filled password
+        fireEvent.changeText(usernameInput, '');
+        fireEvent.changeText(emailInput, 'email@mail.com');
+        fireEvent.changeText(passwordInput, 'password');
+        fireEvent.changeText(confirmPassowrdInput, 'password');
+
+        fireEvent.press(signupConfirmButton);  //press the sign up button on modal
+
+        // Check that Alert.alert was called with the expected message
+        await waitFor(() => {
+            expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please fill all fields.');
+        })
+
+        //simulate entering empty email, filled other
+        fireEvent.changeText(usernameInput, 'userName');
+        fireEvent.changeText(emailInput, '');
+        fireEvent.changeText(passwordInput, 'password');
+        fireEvent.changeText(confirmPassowrdInput, 'password');
+
+        fireEvent.press(signupConfirmButton);  //press the sign up button on modal
+
+        // Check that Alert.alert was called with the expected message
+        await waitFor(() => {
+            expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please fill all fields.');
+        })
+
+        //simulate entering empty password, filled other
+        fireEvent.changeText(usernameInput, 'userName');
+        fireEvent.changeText(emailInput, 'email@mail.com');
+        fireEvent.changeText(passwordInput, '');
+        fireEvent.changeText(confirmPassowrdInput, '');
+
+        fireEvent.press(signupConfirmButton);  //press the sign up button on modal
+
+        // Check that Alert.alert was called with the expected message
+        await waitFor(() => {
+            expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please fill all fields.');
+        })
+    })
 });
 
 describe('LS-6: Fill in Non-Matching Passwords', () => {
-    
+    jest.spyOn(Alert, 'alert')   //mock Alerts
+    let mockedStore;  //define a store for our mock
+
+    //initialize mocked store with logged in
+    mockedStore = configureStore({
+        reducer: mockReducer,  //pass the mock reducer
+    });
+
+    test('Fail to submit new user when passwords do not match', async () => {
+        const { getByText, getByPlaceholderText } = render(
+            <Provider store={mockedStore}>
+                <Tabs pagesList={[{ name: "Login", component: LoginPage }, { name: "Home", component: HomePage }]} />
+            </Provider>
+        );
+
+        //open the sign up modal (same code as in LS-4)
+        const signupButton = screen.getByText('Click here to Sign Up'); // Use the testID to find the element
+        fireEvent.press(signupButton); //simulate pressing the signup button
+
+        const usernameInput = screen.getByPlaceholderText("Enter your username");
+        const emailInput = screen.getByPlaceholderText("Enter your email");
+        const passwordInput = screen.getByPlaceholderText("Enter your password");
+        const confirmPassowrdInput = screen.getByPlaceholderText("Confirm your password");
+        const signupConfirmButton = screen.getByText('Sign Up'); // Use the testID to find the element
+
+        //simulate entering empty username, filled password
+        fireEvent.changeText(usernameInput, 'userName');
+        fireEvent.changeText(emailInput, 'email@mail.com');
+        fireEvent.changeText(passwordInput, 'password');
+        fireEvent.changeText(confirmPassowrdInput, 'notPassword');
+
+        fireEvent.press(signupConfirmButton);  //press the sign up button on modal
+
+        // Check that Alert.alert was called with the expected message
+        await waitFor(() => {
+            expect(Alert.alert).toHaveBeenCalledWith('Error', 'Passwords do not match.');
+        })
+    })
 });
 
 describe('LS-7: Fill in Valid Information', () => {
-    
+    jest.spyOn(Alert, 'alert')   //mock Alerts
+    let mockedStore;  //define a store for our mock
+
+    //initialize mocked store with logged in
+    mockedStore = configureStore({
+        reducer: mockReducer,  //pass the mock reducer
+    });
+
+    test('Accept sign up request when all inputs valid', async () => {
+        const { getByText, getByPlaceholderText } = render(
+            <Provider store={mockedStore}>
+                <Tabs pagesList={[{ name: "Login", component: LoginPage }, { name: "Home", component: HomePage }]} />
+            </Provider>
+        );
+
+        //open the sign up page (same code as in LS-4)
+        const signupButton = screen.getByText('Click here to Sign Up'); // Use the testID to find the element
+        fireEvent.press(signupButton); //simulate pressing the signup button
+
+        const usernameInput = screen.getByPlaceholderText("Enter your username");
+        const emailInput = screen.getByPlaceholderText("Enter your email");
+        const passwordInput = screen.getByPlaceholderText("Enter your password");
+        const confirmPassowrdInput = screen.getByPlaceholderText("Confirm your password");
+        const signupConfirmButton = screen.getByText('Sign Up'); // Use the testID to find the element
+
+        //simulate entering empty username, filled password
+        fireEvent.changeText(usernameInput, 'userName');
+        fireEvent.changeText(emailInput, 'email@mail.com');
+        fireEvent.changeText(passwordInput, 'password');
+        fireEvent.changeText(confirmPassowrdInput, 'password');
+
+        fireEvent.press(signupConfirmButton);  //press the sign up button on modal
+
+        //check that login action was performed and routed to home page
+        //Assert that LoginPage is no longer rendere
+
+        // Check that Alert.alert was called with the expected message
+        await waitFor(() => {
+            expect(Alert.alert).toHaveBeenCalledWith('Success', 'You have signed up successfully!');
+        })      
+        
+        //bug notice - In tests, sign up navigates back to Login page, but when used manually, routes to Home..?
+    })
 });
 
 

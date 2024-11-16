@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'    
-import { TouchableWithoutFeedback, TouchableOpacity, View, Modal, Text, TextInput, Button } from 'react-native';
+import { TouchableWithoutFeedback, TouchableOpacity, View, Modal, Text, TextInput, Button, Alert } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { addEmergencyButton } from '../../../../StateManagement/Slices/EmergencyButtonSlice'
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -15,11 +15,16 @@ export default function AddButtonModal({ navigation }) {
 
     const handleSubmit = () => {
         // Dispatch the new task to Redux
-        dispatch(addEmergencyButton({ title: title, message: message, bgColor: bgColor })); 
-        console.log(`sent button with title: ${title}, message: ${message}, bgColor: ${bgColor}`)
-        resetFields();
-
-        setIsAddButtonModalVisible(false); // Close modal after submitting
+        if (title.trim() !== '' && message.trim() !== '') {
+            dispatch(addEmergencyButton({ title: title, message: message, bgColor: bgColor })); 
+            console.log(`sent button with title: ${title}, message: ${message}, bgColor: ${bgColor}`)
+            resetFields();
+            setIsAddButtonModalVisible(false); // Close modal after submitting
+        }
+        //if inputs were invalid
+        else {
+            Alert.alert('Error', 'Please enter a title and description.');
+        }
     };
 
     const onClose = () => {
@@ -37,7 +42,7 @@ export default function AddButtonModal({ navigation }) {
     useEffect(() => {
         navigation.setOptions({
             headerRight: () => (
-                <TouchableOpacity onPress={() => setIsAddButtonModalVisible(true)} style={{ marginRight: 15 }}>
+                <TouchableOpacity onPress={() => setIsAddButtonModalVisible(true)} style={{ marginRight: 15 }} testID='add-emergency-modal-button'>
                     <Ionicons name="add-circle-outline" size={30} color="black" />
                 </TouchableOpacity>
             ),
@@ -65,6 +70,7 @@ export default function AddButtonModal({ navigation }) {
                             <Text className="text-base text-[#4A154B] text-left font-semibold mb-2 w-full">Title</Text>
                             <TextInput
                                 value={title}
+                                placeholder="Enter title here"
                                 onChangeText={setTitle}
                                 className="border border-gray-300 p-2 mb-4 w-full"
                             />
@@ -72,6 +78,7 @@ export default function AddButtonModal({ navigation }) {
                             <Text className="text-base text-[#4A154B] text-left font-semibold mb-2 w-full">Description</Text>
                             <TextInput
                                 value={message}
+                                placeholder="Enter description here"
                                 onChangeText={setMessage}
                                 className="border border-gray-300 p-2 mb-4 w-full"
                             />
@@ -79,6 +86,7 @@ export default function AddButtonModal({ navigation }) {
                             <Text className="text-base text-[#4A154B] text-left font-semibold mb-2 w-full">Color</Text>
                             <TextInput
                                 value={bgColor}
+                                placeholder="Enter color here"
                                 onChangeText={setBgColor}
                                 className="border border-gray-300 p-2 mb-4 w-full"
                             />

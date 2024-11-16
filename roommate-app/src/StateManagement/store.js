@@ -3,20 +3,6 @@ import calendarReducer from './Slices/CalendarSlice';
 import userReducer from './Slices/UserSlice';
 import emergencyReducer from './Slices/EmergencyButtonSlice'
 
-// initial state for testing purposes
-export const initialState = {
-    user: { id: null }, // Default to no user logged in
-    calendar: {}, // Default calendar state
-    //add emergency button for testing here??
-};
-
-// simple root reducer for testing
-export const rootReducer = {
-    user: userReducer,
-    calendar: calendarReducer,
-    emergency: emergencyReducer,
-};
-
 //store configuration
 export const store = configureStore({
     reducer: {

@@ -4,8 +4,8 @@ import uuid from "react-native-uuid";
 // initial state with prefab butons
 const initialState = {
     buttons: {
-        1 : {id: 1, title : 'Predefined Emergency', message: 'Predefined Emergency Message', bgColor: 'bg-red-500'},
-        2 : {id: 2, title: 'Test Emergency', message: 'Test emergency message', bgColor: 'bg-green-500'},
+        1 : {id: 1, title : 'Predefined Emergency', message: 'Predefined Emergency Message', bgColor: 'bg-red-500', isPermanent: true},
+        2 : {id: 2, title: 'Test Emergency', message: 'Test emergency message', bgColor: 'bg-green-500', isPermanent: false},
     }
 };
 
@@ -26,8 +26,6 @@ const emergencyButtonSlice = createSlice({
                 console.log(`Background Color: ${button.bgColor}`);
                 console.log('---');
             });
-
-
         },
         editEmergencyButton: (state, action) => {
             const { buttonId, title, message, color } = action.payload;

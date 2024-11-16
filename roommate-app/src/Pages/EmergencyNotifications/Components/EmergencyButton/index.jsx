@@ -3,7 +3,7 @@ import { useContext } from 'react'
 import { EmergencyContext } from '../../Context';
 
 
-export default function EmergencyButton({ bgColor, title, message, buttonObject}) {
+export default function EmergencyButton({ bgColor, title, message, buttonObject, isPermanent}) {
     const {setSelectedButton} = useContext(EmergencyContext);
 
     return (

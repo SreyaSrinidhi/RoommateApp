@@ -24,18 +24,27 @@ export default function EmergencyButtonModal() {
 
     const closeModal = () => {
         setSelectedButton(null);
+        setIsEditing(false);
     }
 
     // Handle updating the button
     const handleEdit = () => {
-        dispatch(editEmergencyButton({ buttonId: selectedButton.id, title: editedTitle, message: editedMessage, color: editedBgColor }));
-        setIsEditing(false);
-        closeModal()
+        //only submit edit if data was set to valid inputs
+        if (editedTitle.trim() !== '' && editedMessage.trim() !== '') {
+            dispatch(editEmergencyButton({ buttonId: selectedButton.id, title: editedTitle, message: editedMessage, bgColor: editedBgColor }));
+            setIsEditing(false);
+            closeModal()
+        }
+        //if inputs were invalid
+        else {
+            Alert.alert('Error', 'Title and description must not be empty.');
+        }
     };
 
     //Handle sending notification
     const handleNotification = () => {
         Alert.alert(`Emergency button ${selectedButton.title} pressed with message: ${selectedButton.message}`)
+        closeModal();
     }
 
     // Handle deleting the task
@@ -69,6 +78,7 @@ export default function EmergencyButtonModal() {
                                 <Text className="text-base text-[#4A154B] text-left font-semibold mb-2 w-full">Title</Text>
                                 <TextInput
                                     value={editedTitle}
+                                    placeholder='Enter title here'
                                     onChangeText={setEditedTitle}
                                     className="border border-gray-300 p-2 mb-4 w-full"
                                 />
@@ -76,6 +86,7 @@ export default function EmergencyButtonModal() {
                                 <Text className="text-base text-[#4A154B] text-left font-semibold mb-2 w-full">Message</Text>
                                 <TextInput
                                     value={editedMessage}
+                                    placeholder='Enter message here'
                                     onChangeText={setEditedMessage}
                                     className="border border-gray-300 p-2 mb-4 w-full"
                                 />
@@ -83,6 +94,7 @@ export default function EmergencyButtonModal() {
                                 <Text className="text-base text-[#4A154B] text-left font-semibold mb-2 w-full">Background Color</Text>
                                 <TextInput
                                     value={editedBgColor}
+                                    placeholder='Enter color here'
                                     onChangeText={setEditedBgColor}
                                     className="border border-gray-300 p-2 mb-4 w-full"
                                 />
@@ -96,7 +108,7 @@ export default function EmergencyButtonModal() {
                                     className="bg-[#8CC49F] rounded-md p-4 mb-3 w-full"
                                     onPress={() => setIsEditing(false)}
                                 >
-                                    <Text className="text-white font-bold text-center">Send Emergency Notification</Text>
+                                    <Text className="text-white font-bold text-center">Cancel</Text>
                                 </Pressable>
                             </>
                         ) : (
@@ -110,19 +122,24 @@ export default function EmergencyButtonModal() {
                                     <Text className="text-white font-bold text-center">Send Emergency Notification</Text>
                                 </Pressable>
 
-                                <Pressable
-                                    onPress={() => setIsEditing(true)}
-                                    className="bg-[#8CC49F] rounded-md p-4 mb-3 w-full"
-                                >
-                                    <Text className="text-white font-bold text-center">Edit</Text>
-                                </Pressable>
+                                {/*only render edit and delete buttons if button isn/t marked as permanent*/}
+                                {!selectedButton.isPermanent ? (
+                                    <>
+                                        <Pressable
+                                            onPress={() => setIsEditing(true)}
+                                            className="bg-[#8CC49F] rounded-md p-4 mb-3 w-full"
+                                        >
+                                            <Text className="text-white font-bold text-center">Edit</Text>
+                                        </Pressable>
 
-                                <Pressable
-                                    onPress={handleDelete}
-                                    className="bg-red-500 rounded-md p-4 mb-3 w-full"
-                                >
-                                    <Text className="text-white font-bold text-center">Delete</Text>
-                                </Pressable>
+                                        <Pressable
+                                            onPress={handleDelete}
+                                            className="bg-red-500 rounded-md p-4 mb-3 w-full"
+                                        >
+                                            <Text className="text-white font-bold text-center">Delete</Text>
+                                        </Pressable>
+                                    </>
+                                ) : null }
                             </>
                         )}
 
