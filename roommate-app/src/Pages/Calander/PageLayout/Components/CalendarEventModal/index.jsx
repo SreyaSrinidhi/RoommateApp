@@ -50,7 +50,7 @@ const CalenderEventModal = () => {
                         onChangeText={setEditedTitle}
                         className="border border-gray-300 p-2 mb-4 w-full"
                     />
-                    
+
                     <Text className="text-base text-[#4A154B] text-left font-semibold mb-2 w-full">Description</Text>
                     <TextInput
                         value={editedDescription}

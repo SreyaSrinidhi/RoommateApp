@@ -60,7 +60,6 @@ const CalendarWidget = ()=>{
             onDayPress={onDayPress}
             markedDates={getMarkedDates()} // Pass marked dates with dots and selection
             markingType={'multi-dot'} // Enable multi-dot marking type
-            testID="calendar-widget"
         />
     )
 }

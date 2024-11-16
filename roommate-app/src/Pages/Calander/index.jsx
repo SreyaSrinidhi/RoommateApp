@@ -28,7 +28,7 @@ const CalendarPage = ({ navigation }) => {
 
 
             <Layout.ScrollSection>
-               <Tasks tasks={tasks} />
+                <Tasks tasks={tasks} />
             </Layout.ScrollSection>
 
             <Layout.ExpandEventModal>

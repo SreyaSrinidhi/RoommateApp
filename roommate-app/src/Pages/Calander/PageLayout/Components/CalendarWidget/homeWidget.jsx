@@ -11,19 +11,17 @@ const CalendarWidget = ()=>{
         const marked = {};
 
         // Mark dates with tasks and show up to 4 dots
-        if (tasks != null) {                                   //ensure tasks is not null before iterating through
-            Object.keys(tasks).forEach(date => {
-                const dots = tasks[date].slice(0, 4).map((_, i) => ({
-                    key: `dot-${i}`,
-                    color: '#4A154B', // Dot color for tasks
-                }));
+        Object.keys(tasks).forEach(date => {
+            const dots = tasks[date].slice(0, 4).map((_, i) => ({
+                key: `dot-${i}`,
+                color: '#4A154B', // Dot color for tasks
+            }));
 
-                marked[date] = {
-                    dots, // Add dots for dates with tasks
-                    ...(marked[date] || {}),
-                };
-            });
-        }
+            marked[date] = {
+                dots, // Add dots for dates with tasks
+                ...(marked[date] || {}),
+            };
+        });
 
         // Highlight the selected date with a circle but preserve the dots
 
@@ -32,7 +30,7 @@ const CalendarWidget = ()=>{
 
     return(
         //Disable touch events for the calendar
-        <View className="w-full overflow-hidden rounded-md" pointerEvents="none">  
+        <View className="w-full overflow-hidden rounded-md" pointerEvents="none">
             <Calendar
                 style={{ backgroundColor: '#EDEFF7'}}
                 theme={{
