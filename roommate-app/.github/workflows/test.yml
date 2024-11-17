@@ -1,0 +1,30 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - main      # Run tests on push to the main branch
+      - test-development # Optionally run tests on feature branches
+  pull_request:    # Run tests on pull requests to ensure code quality
+    branches:
+      - main
+       - test-development
+
+jobs:
+  test:
+    runs-on: ubuntu-latest # The environment where tests will run
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20' # Match your project's Node.js version
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test

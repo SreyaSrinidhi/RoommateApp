@@ -262,6 +262,10 @@ describe('ST-4: Test Open privacy policy', () => {
     });
 })
 
-describe('ST-5: Test log out', () => {
+describe('ST-5: Test notifications switch', () => {
+
+})
+
+describe('ST-6: Test log out', () => {
 
 })
