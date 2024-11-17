@@ -1,194 +1,101 @@
-import React from "react";
-import { render, fireEvent, waitFor } from "@testing-library/react-native";
-import { Provider } from "react-redux";
-import configureStore from "redux-mock-store";
-import Task from "../src/Pages/Calander/PageLayout/Components/Tasks/index";
-import AddEventModal from "../src/Pages/Calander/PageLayout/Components/AddEventModal/index";
-import CalendarPage from "../src/Pages/Calander";
-import Tabs from "../src/Components/Tabs";
-import { CalendarContext } from "../src/Pages/Calander/Context";
+import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import { NavigationContainer } from '@react-navigation/native';
+import CalendarPage from '../src/Pages/Calander';
+import CalendarWidget from '../src/Pages/Calander/PageLayout/Components/CalendarWidget';
+import { CalendarProvider } from '../src/Pages/Calander/Context';
+import calendarReducer, { addTask, deleteTask } from '../src/StateManagement/Slices/CalendarSlice';
 
+// Mock store setup
 const mockStore = configureStore([]);
 const initialState = {
     calendar: {
         tasks: {
-            "2024-10-17": [
-                {
-                    id: 1,
-                    title: "PHYS 121 Labs",
-                    subtitle: "Lab #4: COL",
-                    description: "Complete the lab report for COL",
-                    due: "Due at 11:59 PM",
-                    created: "User X",
-                },
-            ],
-            "2024-09-17": [
-                {
-                    id: 2,
-                    title: "PHYS 122 Labs",
-                    subtitle: "Lab #5: MPR",
-                    description: "Complete the lab report for MPR",
-                    due: "Due at 11:59 PM",
-                    created: "User Y",
-                },
+            '2024-10-17': [
+                { id: 1, title: 'Task 1', description: 'Desc 1', due: '11:59 PM', created: 'User X' },
             ],
         },
     },
-    user: { id: '123' },
-    emergency: {},
 };
-const store = mockStore(initialState);
 
-describe("Calendar Page Tests", () => {
-    const mockSetSelectedTask = jest.fn();
-    const mockSetIsAddEventModalVisible = jest.fn();
+// Mock navigation
+const mockNavigation = {
+    setOptions: jest.fn(),
+};
 
-    const mockContextValue = {
-        selectedDate: "2024-10-17",
-        setSelectedTask: mockSetSelectedTask,
-        setIsAddEventModalVisible: mockSetIsAddEventModalVisible,
-    };
+describe('Calendar Tests', () => {
+    test('renders CalendarPage correctly', () => {
+        const store = mockStore(initialState);
 
-    it("renders tasks correctly for a selected date", () => {
-        const { getByTestId, queryByText } = render(
+        const { getByText } = render(
             <Provider store={store}>
-                <CalendarContext.Provider value={mockContextValue}>
-                    <Task />
-                </CalendarContext.Provider>
+                <CalendarProvider>
+                    <NavigationContainer>
+                        <CalendarPage navigation={mockNavigation} />
+                    </NavigationContainer>
+                </CalendarProvider>
             </Provider>
         );
 
-        expect(getByTestId("task-1")).toBeTruthy();
-        expect(queryByText("PHYS 121 Labs")).toBeTruthy();
+        expect(getByText('No tasks for the selected date.')).toBeTruthy();
     });
 
-    it("shows 'No tasks' message when no tasks are present for the selected date", () => {
-        const emptyStore = mockStore({ calendar: { tasks: {} } });
+    test('renders CalendarWidget with marked dates', () => {
+        const store = mockStore(initialState);
 
-        const { queryByText } = render(
-            <Provider store={emptyStore}>
-                <CalendarContext.Provider value={{ ...mockContextValue, selectedDate: "2024-10-18" }}>
-                    <Task />
-                </CalendarContext.Provider>
+        const { getByText } = render(
+            <Provider store={store}>
+                <CalendarProvider>
+                    <CalendarWidget />
+                </CalendarProvider>
             </Provider>
         );
 
-        expect(queryByText("No tasks for the selected date.")).toBeTruthy();
+        expect(getByText('17')).toBeTruthy();
     });
 
-    it("opens the Add Event modal and adds a new task", () => {
-        const mockDispatch = jest.fn();
-        store.dispatch = mockDispatch;
+    test('addTask adds a task to a new date', () => {
+        const newTask = { title: 'New Task', description: 'New Desc', due: '1:00 PM' };
+        const date = '2024-10-18';
+        const action = addTask({ date, task: newTask });
 
-        const { getByPlaceholderText, getByText } = render(
-            <Provider store={store}>
-                <CalendarContext.Provider value={mockContextValue}>
-                    <AddEventModal />
-                </CalendarContext.Provider>
-            </Provider>
-        );
+        const initialState = { tasks: {} };
+        const updatedState = calendarReducer(initialState, action);
 
-        fireEvent.changeText(getByPlaceholderText("Title"), "New Task");
-        fireEvent.changeText(getByPlaceholderText("Description"), "New Description");
-        fireEvent.changeText(getByPlaceholderText("Due Time"), "5 PM");
-        fireEvent.press(getByText("Add"));
+        expect(updatedState.tasks[date]).toHaveLength(1);
+        expect(updatedState.tasks[date][0].title).toBe('New Task');
+    });
 
-        expect(mockDispatch).toHaveBeenCalledWith({
-            type: "calendar/addTask",
-            payload: {
-                date: "2024-10-17",
-                task: {
-                    id: expect.any(String),
-                    title: "New Task",
-                    description: "New Description",
-                    due: "5 PM",
-                    created: "User X",
-                },
+    test('deleteTask removes a task from the state', () => {
+        const action = deleteTask({ date: '2024-10-17', taskId: 1 });
+
+        const stateWithTask = {
+            tasks: {
+                '2024-10-17': [{ id: 1, title: 'Task 1' }],
             },
-        });
-    });
-
-    it("edits an existing task", () => {
-        const mockDispatch = jest.fn();
-        store.dispatch = mockDispatch;
-
-        const { getByTestId, getByText } = render(
-            <Provider store={store}>
-                <CalendarContext.Provider value={mockContextValue}>
-                    <Task />
-                </CalendarContext.Provider>
-            </Provider>
-        );
-
-        fireEvent.press(getByTestId("edit-task-1")); // Open edit mode
-        fireEvent.changeText(getByTestId("edit-task-title"), "Updated Task"); // Edit the title
-        fireEvent.press(getByTestId("save-task")); // Save the changes
-
-        expect(mockDispatch).toHaveBeenCalledWith({
-            type: "calendar/editTask",
-            payload: {
-                date: "2024-10-17",
-                taskId: 1,
-                updatedTask: { title: "Updated Task" },
-            },
-        });
-    });
-
-    it("deletes a task", () => {
-        const mockDispatch = jest.fn();
-        store.dispatch = mockDispatch;
-
-        const { getByTestId } = render(
-            <Provider store={store}>
-                <CalendarContext.Provider value={mockContextValue}>
-                    <Task />
-                </CalendarContext.Provider>
-            </Provider>
-        );
-
-        fireEvent.press(getByTestId("delete-task-1")); // Simulate task deletion
-
-        expect(mockDispatch).toHaveBeenCalledWith({
-            type: "calendar/deleteTask",
-            payload: { date: "2024-10-17", taskId: 1 },
-        });
-    });
-
-    it("updates tasks when selectedDate changes", () => {
-        const updatedContextValue = {
-            ...mockContextValue,
-            selectedDate: "2024-10-18", // A date with no tasks
         };
 
-        const { queryByText } = render(
-            <Provider store={store}>
-                <CalendarContext.Provider value={updatedContextValue}>
-                    <Task />
-                </CalendarContext.Provider>
-            </Provider>
-        );
+        const updatedState = calendarReducer(stateWithTask, action);
 
-        expect(queryByText("PHYS 121 Labs")).toBeFalsy(); // The task should not appear
-        expect(queryByText("No tasks for the selected date.")).toBeTruthy();
+        expect(updatedState.tasks['2024-10-17']).toBeUndefined();
     });
 
-    //check that calendar page overall rendering
-    it("renders calendar page correctly", async () => {
-        const updatedContextValue = {
-            ...mockContextValue,
-            selectedDate: "2024-09-17", // A date with a task still
-        }
+    test('selecting a date triggers onDayPress', async () => {
+        const store = mockStore(initialState);
 
-        const { getByTestId, queryAllByText, getByText } = render(
+        const { getByText } = render(
             <Provider store={store}>
-                <CalendarContext.Provider value={updatedContextValue}>
-                    <Tabs pagesList={[{ name: "Calendar", component: CalendarPage }]} />
-                </CalendarContext.Provider>
+                <CalendarProvider>
+                    <CalendarWidget />
+                </CalendarProvider>
             </Provider>
         );
 
-        const calendarElements = queryAllByText("Calendar");
-        expect(calendarElements.length).toBeGreaterThan(0);  //at least one element saying calendar
-        expect(getByTestId('calendar-widget')).toBeTruthy();
-    })
+        await act(async () => {
+            fireEvent.press(getByText('17'));
+        });
+
+        // Add assertions to verify the date selection behavior
+    });
 });

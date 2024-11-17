@@ -38,7 +38,7 @@ describe('LS-1: Attempt login with incorrect input type', () => {  //incorrect t
 
         //simulate pressing the login button
         fireEvent.press(loginButton);
-        
+
 
         // Check that Alert.alert was called with the expected message
         await waitFor(() => {
@@ -71,14 +71,14 @@ describe('LS-2: Attempt login with incorrect username or password', () => {  //w
 
         //simulate pressing the login button
         fireEvent.press(loginButton);
-        
+
 
         // Check that Alert.alert was called with the expected message
         await waitFor(() => {
             expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please enter both username and password.');
         })
     })
-}) 
+})
 
 describe('LS-3: Login with Correct Username and Password', () => {
     test('Navigates to HomePage when login pressed if inputs filled correctly', async () => {
@@ -105,7 +105,7 @@ describe('LS-3: Login with Correct Username and Password', () => {
             expect(screen.queryByPlaceholderText('Enter your username')).toBeNull(); // Ensure username input is gone
             expect(screen.queryByPlaceholderText('Enter your password')).toBeNull(); // Ensure password input is gone
         })
-        
+
 
         // Check that Home Page is now rendered
         // Check that the text "Home" is present, and there are the correct number of instances
@@ -296,8 +296,8 @@ describe('LS-7: Fill in Valid Information', () => {
         // Check that Alert.alert was called with the expected message
         await waitFor(() => {
             expect(Alert.alert).toHaveBeenCalledWith('Success', 'You have signed up successfully!');
-        })      
-        
+        })
+
         //bug notice - In tests, sign up navigates back to Login page, but when used manually, routes to Home..?
     })
 });
@@ -312,9 +312,9 @@ describe('LoginPage Render Tests', () => {
     test('renders LoginPage with input fields and login button', () => {
         render(
             //make sure to provide the store context to the page when rendering
-            <Provider store={store}> 
+            <Provider store={store}>
                 <LoginPage />
-            </Provider> 
+            </Provider>
         );
         expect(screen.getByPlaceholderText("Enter your username")).toBeTruthy();    //NOTE - finding element based on its EXACT placeholder text
         expect(screen.getByPlaceholderText("Enter your password")).toBeTruthy();
