@@ -8,15 +8,18 @@ const CalenderEventModal = () => {
     const { selectedTask: task, selectedDate, setSelectedTask: setTask } = useContext(CalendarContext);
     const dispatch = useDispatch();
 
+    // Ensure task is defined and provide default values
+    const safeTask = task || { title: '', description: '', due: '', id: null };
+
     // State for editing task
     const [isEditing, setIsEditing] = useState(false);
-    const [editedTitle, setEditedTitle] = useState(task.title);
-    const [editedDescription, setEditedDescription] = useState(task.description);
-    const [editedDue, setEditedDue] = useState(task.due);
+    const [editedTitle, setEditedTitle] = useState(safeTask.title);
+    const [editedDescription, setEditedDescription] = useState(safeTask.description);
+    const [editedDue, setEditedDue] = useState(safeTask.due);
 
     const closeModal = () => {
         setTask(null);
-    }
+    };
 
     // Handle updating the task
     const handleEdit = () => {
@@ -25,16 +28,16 @@ const CalenderEventModal = () => {
             description: editedDescription,
             due: editedDue,
         };
-        dispatch(editTask({ date: selectedDate, taskId: task.id, updatedTask }));
+        dispatch(editTask({ date: selectedDate, taskId: safeTask.id, updatedTask }));
         setIsEditing(false);
-        closeModal()
+        closeModal();
         // Stop editing mode
     };
 
     // Handle deleting the task
     const handleDelete = () => {
-        dispatch(deleteTask({ date: selectedDate, taskId: task.id }));
-        closeModal()
+        dispatch(deleteTask({ date: selectedDate, taskId: safeTask.id }));
+        closeModal();
         // Close modal after deleting
     };
 
@@ -69,9 +72,9 @@ const CalenderEventModal = () => {
                 </>
             ) : (
                 <>
-                    <Text className="text-[#4A154B] text-xl font-bold mb-4">{task.title}</Text>
-                    <Text className="text-[#4A154B] mb-2">{task.description}</Text>
-                    <Text className="text-[#4A154B] mb-4">{task.due}</Text>
+                    <Text className="text-[#4A154B] text-xl font-bold mb-4">{safeTask.title}</Text>
+                    <Text className="text-[#4A154B] mb-2">{safeTask.description}</Text>
+                    <Text className="text-[#4A154B] mb-4">{safeTask.due}</Text>
                     <Button title="Edit" onPress={() => setIsEditing(true)} />
                     <Button title="Delete" onPress={handleDelete} />
                 </>
