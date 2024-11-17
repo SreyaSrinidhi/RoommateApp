@@ -8,7 +8,7 @@ import TermsOfServiceModal from './Components/TermsOfServiceModal';
 import PrivacyPolicyModal from './Components/PrivacyPolicyModal';
 import { SettingsContext, SettingsProvider } from './Context';
 
-function SettingsScreenContent() {
+export function SettingsScreenContent() {
     const [isNotificationsEnabled, setNotificationsEnabled] = useState(true);
     const dispatch = useDispatch();
     const { isProfileModalVisible, setIsProfileModalVisible, isPasswordModalVisible, setIsPasswordModalVisible } = useContext(SettingsContext);

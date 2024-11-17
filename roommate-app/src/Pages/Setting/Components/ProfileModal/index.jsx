@@ -33,6 +33,7 @@ export default function ProfileModal({ isVisible, onClose = () => {} }) {
                         value={name}
                         onChangeText={setName}
                         className="border border-gray-300 rounded-md p-2 mb-4 w-full"
+                        placeholder="Enter your name"
                     />
 
                     <TouchableOpacity className="bg-[#8CC49F] p-3 rounded-md mb-4 w-full items-center">

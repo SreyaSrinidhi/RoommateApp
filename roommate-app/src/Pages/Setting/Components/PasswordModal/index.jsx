@@ -37,6 +37,7 @@ export default function PasswordModal({ isVisible, onClose = () => {} }) {
                     <Text className="text-base text-[#4A154B] text-left font-semibold mb-2 w-full">New Password</Text>
                     <TextInput
                         value={newPassword}
+                        placeholder='Enter new password'
                         onChangeText={setNewPassword}
                         secureTextEntry={true}
                         className="border border-gray-300 rounded-md p-2 mb-4 w-full"
@@ -45,6 +46,7 @@ export default function PasswordModal({ isVisible, onClose = () => {} }) {
                     <Text className="text-base text-[#4A154B] text-left font-semibold mb-2 w-full">Confirm Password</Text>
                     <TextInput
                         value={confirmPassword}
+                        placeholder='Confirm new password'
                         onChangeText={setConfirmPassword}
                         secureTextEntry={true}
                         className="border border-gray-300 rounded-md p-2 mb-4 w-full"
