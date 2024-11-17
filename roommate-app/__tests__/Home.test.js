@@ -1,10 +1,10 @@
 import React from 'react';
-import { render, fireEvent, act} from '@testing-library/react-native';
+import { render, fireEvent, act, waitFor, screen} from '@testing-library/react-native';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';  //needed to mock redux store
 import HomePage from '../src/Pages/HomePage'; 
 import Tabs from '../src/Components/Tabs'
-import { Calendar } from 'react-native-calendars';
+import Calendar from '../src/Pages/Calander'
 
 // Define a mock reducer for mocking store
 const mockReducer = {
@@ -28,6 +28,13 @@ describe('HP-1: Navigate to Page from Tile', () => {
             reducer: mockReducer,  //pass the mock reducer
             preloadedState: {
                 user: { id: 'test-user-id'}, //NOTE - for now without authentication, this will work - post auth, may need to be changed
+                calendar: {
+                    tasks: {
+                        '2024-10-17': [
+                            { id: 1, title: 'Task 1', description: 'Desc 1', due: '11:59 PM', created: 'User X' },
+                        ],
+                    },
+                },
             },
         });
     });
@@ -42,13 +49,12 @@ describe('HP-1: Navigate to Page from Tile', () => {
         //find the calendar tile and simulate a press
         const calendarTile = getByTestId('calendar-tile'); // Use the testID to find the element
 
-        act(() => {
-            fireEvent.press(calendarTile);   //simulate clicking on tile
-        });
+        fireEvent.press(calendarTile);   //simulate clicking on tile
 
-        //assert that the Calendar page is displayed by checking for a specific content on that page
-        const calendarPageTitle = findByText(/Calendar/i);
-        expect(calendarPageTitle).toBeTruthy()
+         // Wait for the Calendar page to be rendered (make sure the text exists)
+        await waitFor(() => {
+            expect(screen.getByTestId('calendar-main-page')).toBeTruthy();
+        });
     })
 
     test('Pressing updates tile opens updates widget', async () => {
@@ -61,13 +67,12 @@ describe('HP-1: Navigate to Page from Tile', () => {
         //find the updates tile and simulate press 
         const updatesTile = await findByText('Click me to see updates');   //not sure why this needs await while other above doesn't...
 
-        act(() => {
-            fireEvent.press(updatesTile)
-        });
+        fireEvent.press(updatesTile)
 
         //assert that the updates modal is displayed
-        const updatesModalTitle = await findByText('Updates:');  //NOTE - text sensitive - if this component changes, this text must change
+        const updatesModalTitle = await screen.findByText('Updates:');  //NOTE - text sensitive - if this component changes, this text must change
         expect(updatesModalTitle).toBeTruthy();
+
 
     })
 

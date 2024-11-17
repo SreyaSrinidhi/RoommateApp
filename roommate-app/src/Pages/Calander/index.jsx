@@ -21,7 +21,7 @@ const CalendarPage = ({ navigation }) => {
 
 
     return (
-        <Layout>
+        <Layout testID='calendar-main-page'>
             <Layout.CalendarSection>
                 <CalendarWidget/>
             </Layout.CalendarSection>
