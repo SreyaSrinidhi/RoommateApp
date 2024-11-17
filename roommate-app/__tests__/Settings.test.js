@@ -207,3 +207,61 @@ describe('ST-2: Attempt to change password', () => {
         await waitFor(() => expect(Alert.alert).toHaveBeenCalledWith('Saved', 'Your password has been updated.'));
     });
 })
+
+describe('ST-3: Test Open terms of service', () => {
+    test('Attempt open terms of service', async () => {
+        const { getByText, getByPlaceholderText } = render(
+            <Provider store={store}>
+                <SettingsProvider>
+                    <Setting />
+                </SettingsProvider>
+            </Provider>
+        )
+    
+        //get the terms of service button
+        const termsOfServiceButton = getByText('Terms of Service');
+        expect(termsOfServiceButton).toBeTruthy();
+    
+        fireEvent.press(termsOfServiceButton);
+    
+        await waitFor(() => {
+            const elements = screen.queryAllByText('Terms of Service'); // Get all instances of the text
+            expect(elements).toHaveLength(2); // Ensure there are exactly two occurrences (modal title and button from main page)
+        }) 
+    
+        // check that the modal displays properly
+        const termsContentPiece = getByText(/Roommate Management App, you agree to follow/);
+        expect(termsContentPiece).toBeTruthy();
+    });
+})
+
+describe('ST-4: Test Open privacy policy', () => {
+    test('Attempt open privacy policy', async () => {
+        const { getByText, getByPlaceholderText } = render(
+            <Provider store={store}>
+                <SettingsProvider>
+                    <Setting />
+                </SettingsProvider>
+            </Provider>
+        )
+    
+        //get the terms of service button
+        const privacyPolicyButton = getByText('Privacy Policy');
+        expect(privacyPolicyButton).toBeTruthy();
+    
+        fireEvent.press(privacyPolicyButton);
+    
+        await waitFor(() => {
+            const elements = screen.queryAllByText('Privacy Policy'); // Get all instances of the text
+            expect(elements).toHaveLength(2); // Ensure there are exactly two occurrences (modal title and button from main page)
+        }) 
+    
+        // check that the modal displays properly
+        const termsContentPiece = getByText(/We respect your privacy./);
+        expect(termsContentPiece).toBeTruthy();
+    });
+})
+
+describe('ST-5: Test log out', () => {
+
+})
