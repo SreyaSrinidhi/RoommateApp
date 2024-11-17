@@ -15,7 +15,7 @@ const renderWithRedux = (component, { initialState, store = mockStore(initialSta
     return render(<Provider store={store}>{component}</Provider>);
 };
 
-test('renders chat messages correctly', () => {
+test('renders chat messages correctly', async () => {
     const { getByText } = renderWithRedux(<ChatScreen />, { initialState });
 
     // Verify if the messages are rendered correctly
@@ -25,9 +25,9 @@ test('renders chat messages correctly', () => {
     expect(getByText("12:55 PM")).toBeTruthy();
 });
 
-test('sends a new message', () => {
+test('sends a new message', async () => {
     const store = mockStore(initialState);
-    const { getByPlaceholderText, getByText } = renderWithRedux(<ChatScreen />, { store });
+    const { getByPlaceholderText, getByText, findByText } = renderWithRedux(<ChatScreen />, { store });
 
     // Simulate typing a message
     const messageInput = getByPlaceholderText("Type a message...");
@@ -38,7 +38,8 @@ test('sends a new message', () => {
     fireEvent.press(sendButton);
 
     // Check if the new message appears in the chat history
-    expect(getByText('New message')).toBeTruthy();
+    const newMessage = await findByText('New message');
+    expect(newMessage).toBeTruthy();
 
     // Optional: If you have Redux logic for dispatching actions, test that as well
     const actions = store.getActions();

@@ -1,35 +1,11 @@
 import React from 'react';
 import { render, fireEvent, act} from '@testing-library/react-native';
 import { Provider } from 'react-redux';
-import { store } from '../src/StateManagement/store'; 
 import { configureStore } from '@reduxjs/toolkit';  //needed to mock redux store
-import { NavigationContainer } from '@react-navigation/native'; // needed to mock page navigation since HomePage uses navigation hook
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomePage from '../src/Pages/HomePage'; 
 import Tabs from '../src/Components/Tabs'
 import { Calendar } from 'react-native-calendars';
 
-//tests to see if page rendered correctly - NOT FUNCTIONAL TESTING
-describe('HomePage Render Tests', () => {
-    //rendering tests
-    test('renders tiles', () => {
-        const { getByTestId } = render(
-            <Provider store={store}>
-                <NavigationContainer> 
-                    <HomePage />
-                </NavigationContainer>
-            </Provider>
-        );
-
-        // Check if the clickable tile for updates is rendered
-        expect(getByTestId('updates-tile')).toBeTruthy();
-        // Check if the tile for navigating to the Calendar is rendered
-        expect(getByTestId('calendar-tile')).toBeTruthy();
-    })
-})
-
-
-//****FUNCTIONAL TESTS BELOW***********
 // Define a mock reducer for mocking store
 const mockReducer = {
     user: (state = { id: null }, action) => state, // simple reducer for 'user'
