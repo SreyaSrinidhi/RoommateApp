@@ -1,10 +1,12 @@
-import { render, fireEvent, act, waitFor } from '@testing-library/react-native';
+import React from 'react';
+import { render, fireEvent, act } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { NavigationContainer } from '@react-navigation/native';
 import CalendarPage from '../src/Pages/Calander';
 import CalendarWidget from '../src/Pages/Calander/PageLayout/Components/CalendarWidget';
-import { CalendarProvider } from '../src/Pages/Calander/Context';
+import AddEventModal from '../src/Pages/Calander/PageLayout/Components/AddEventModal';
+import { CalendarContext } from '../src/Pages/Calander/Context';
 import calendarReducer, { addTask, deleteTask } from '../src/StateManagement/Slices/CalendarSlice';
 
 // Mock Redux store
@@ -30,11 +32,11 @@ describe('Calendar Tests - Updated', () => {
 
         const { getByText } = render(
             <Provider store={store}>
-                <CalendarProvider>
+                <CalendarContext.Provider value={{}}>
                     <NavigationContainer>
                         <CalendarPage navigation={mockNavigation} />
                     </NavigationContainer>
-                </CalendarProvider>
+                </CalendarContext.Provider>
             </Provider>
         );
 
@@ -46,9 +48,9 @@ describe('Calendar Tests - Updated', () => {
 
         const { getByText } = render(
             <Provider store={store}>
-                <CalendarProvider>
+                <CalendarContext.Provider value={{}}>
                     <CalendarWidget />
-                </CalendarProvider>
+                </CalendarContext.Provider>
             </Provider>
         );
 
@@ -82,22 +84,31 @@ describe('Calendar Tests - Updated', () => {
     });
 
     test('selecting a date triggers onDayPress', async () => {
+        const mockSetSelectedDate = jest.fn(); // Mock implementation for setSelectedDate
         const store = mockStore(initialState);
 
         const { getByText } = render(
             <Provider store={store}>
-                <CalendarProvider>
+                <CalendarContext.Provider
+                    value={{
+                        selectedDate: '2024-11-17', // Ensure this matches the calendar's initial date
+                        setSelectedDate: mockSetSelectedDate, // Mock the function here
+                    }}
+                >
                     <CalendarWidget />
-                </CalendarProvider>
+                </CalendarContext.Provider>
             </Provider>
         );
 
+        // Simulate pressing the date "17"
         await act(async () => {
             fireEvent.press(getByText('17'));
         });
 
-        expect(getByText('17')).toBeTruthy();
+        // Verify that setSelectedDate was called with "2024-11-17"
+        expect(mockSetSelectedDate).toHaveBeenCalledWith('2024-11-17');
     });
+
 
     test('handles adding tasks to multiple dates', () => {
         const initialState = {
@@ -114,5 +125,53 @@ describe('Calendar Tests - Updated', () => {
         expect(updatedState.tasks['2024-10-17']).toHaveLength(1);
         expect(updatedState.tasks['2024-10-18']).toHaveLength(1);
         expect(updatedState.tasks['2024-10-18'][0].title).toBe('New Task');
+    });
+
+    test('AddEventModal renders and submits correctly', async () => {
+        const mockSetIsAddEventModalVisible = jest.fn();
+        const mockSelectedDate = '2024-10-17';
+        const store = mockStore(initialState);
+
+        const { getByText, getByPlaceholderText, queryByTestId } = render(
+            <Provider store={store}>
+                <CalendarContext.Provider
+                    value={{
+                        selectedDate: mockSelectedDate,
+                        setIsAddEventModalVisible: mockSetIsAddEventModalVisible,
+                    }}
+                >
+                    <AddEventModal />
+                </CalendarContext.Provider>
+            </Provider>
+        );
+
+        // Check if modal is rendered
+        expect(queryByTestId('AddEventModal')).toBeTruthy();
+
+        // Fill form fields
+        fireEvent.changeText(getByPlaceholderText('Title'), 'New Event');
+        fireEvent.changeText(getByPlaceholderText('Description'), 'Event Description');
+        fireEvent.changeText(getByPlaceholderText('Due Time'), '12:00 PM');
+
+        // Submit the form
+        fireEvent.press(getByText('Add'));
+
+        // Verify actions were dispatched
+        expect(store.getActions()).toContainEqual(
+            expect.objectContaining({
+                type: 'calendar/addTask',
+                payload: {
+                    date: mockSelectedDate,
+                    task: expect.objectContaining({
+                        title: 'New Event',
+                        description: 'Event Description',
+                        due: '12:00 PM',
+                    }),
+                },
+            })
+        );
+
+        // Verify modal is closed
+        expect(mockSetIsAddEventModalVisible).toHaveBeenCalledWith(false);
     });
 });
