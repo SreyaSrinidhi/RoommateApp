@@ -23,13 +23,11 @@ jobs:
         with:
           node-version: '20' # Match your project's Node.js version
 
-      - name: Navigate to app directory  # make sure we are in roommate-app before trying to test
-        working-directory: roommate-app
-        run: |
-          echo "In roommate-app folder"
 
       - name: Install dependencies
+        working-directory: ./roommate-app  #make sure we are in the roommate-app directory
         run: npm install
 
       - name: Run tests
+        working-directory: ./roommate-app  #make sure we are in the roommate-app directory
         run: npm test
