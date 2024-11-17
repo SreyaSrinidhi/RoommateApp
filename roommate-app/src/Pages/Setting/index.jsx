@@ -49,6 +49,7 @@ export function SettingsScreenContent() {
                     <View className="flex-row justify-between items-center py-2">
                         <Text className="text-gray-800">Enable Notifications</Text>
                         <Switch
+                            testID='notifications-switch'
                             value={isNotificationsEnabled}
                             onValueChange={() => setNotificationsEnabled(!isNotificationsEnabled)}
                         />

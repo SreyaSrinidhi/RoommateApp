@@ -15,6 +15,7 @@ jest.mock('@expo/vector-icons', () => {
     };
   });
 
+const mockDispatch = jest.fn();
 
 // Set up the mock store
 const mockStore = configureStore([]);
@@ -24,9 +25,16 @@ const initialState = {
   calendar: {},
 };
 const store = mockStore(initialState);
+store.dispatch = mockDispatch;
 
 // Mock the Alert.alert function
-jest.spyOn(Alert, 'alert');
+//jest.spyOn(Alert, 'alert');
+jest.spyOn(Alert, 'alert').mockImplementation((title, message, buttons) => {
+    // Simulate pressing the first button by default or mock specific button presses based on your test
+    if (buttons && buttons.length > 0) {
+        buttons[1]?.onPress(); // Adjust based on what you want to simulate
+    }
+});
 
 const renderWithRedux = (component, { initialState, store = mockStore(initialState) } = {}) => {
   return render(
@@ -263,9 +271,46 @@ describe('ST-4: Test Open privacy policy', () => {
 })
 
 describe('ST-5: Test notifications switch', () => {
+    test('Switch notifications', async () => {
+        const { getByText, getByPlaceholderText, getByTestId } = render(
+            <Provider store={store}>
+                <SettingsProvider>
+                    <Setting />
+                </SettingsProvider>
+            </Provider>
+        )
 
+        //get the notifications switch
+        const notifsSwitch = getByTestId('notifications-switch');
+        expect(notifsSwitch).toBeTruthy();
+
+        fireEvent.press(notifsSwitch);
+
+        //nothing to check yet - no real action
+    })
 })
 
 describe('ST-6: Test log out', () => {
-
+    test('Attempt logging out', async () => {
+        const { getByText, getByPlaceholderText } = render(
+            <Provider store={store}>
+                <SettingsProvider>
+                    <Setting />
+                </SettingsProvider>
+            </Provider>
+        )
+    
+        //get the terms of service button
+        const logoutButton = getByText('Log Out');
+        expect(logoutButton).toBeTruthy();
+    
+        fireEvent.press(logoutButton);
+    
+        await waitFor(() => {
+            // Check if the logout action has been dispatched
+            expect(mockDispatch).toHaveBeenCalledWith({
+                type: 'user/logout',
+            })
+        });
+    });
 })
