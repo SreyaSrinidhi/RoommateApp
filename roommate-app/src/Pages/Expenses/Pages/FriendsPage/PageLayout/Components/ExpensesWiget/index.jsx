@@ -19,7 +19,7 @@ const ExpensesWiget =() =>{
     );
 
     return(
-        <View className="p-4 bg-[#E8F7EF] rounded-lg mb-4">
+        <View className="p-4 bg-[#E8F7EF] rounded-lg mb-4 w-full">
             <Text className="text-lg font-bold text-[#4A154B]">Total balance</Text>
             <Text className="text-lg text-[#FF0000]">You owe ${totalBalances.youOwe.toFixed(2)}</Text>
             <Text className="text-lg text-[#2BAC76]">You are owed ${totalBalances.youAreOwed.toFixed(2)}</Text>

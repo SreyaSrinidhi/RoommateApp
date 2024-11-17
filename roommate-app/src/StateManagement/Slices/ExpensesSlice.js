@@ -35,18 +35,22 @@ const expensesSlice = createSlice({
 });
 
 function transformExpense(expense) {
-    const friendIds = expense.members.filter(member => member !== 'You');
+    const friendIds = expense.members.filter((member) => member !== 'You'); // Exclude "You"
 
-    // Return an array of expenses, one for each friend
     return friendIds.map((friendId, index) => {
-        const splitAmount = expense.amount * (parseFloat(expense.splitPercentages[friendId]) / 100);
+        // Retrieve the percentage for this friend
+        const friendPercentage = parseFloat(expense.splitPercentages[friendId]);
+
+        // Calculate the split amount for this friend
+        const splitAmount = expense.amount * (friendPercentage / 100);
+
         return {
-            id: `${expense.id}-${index}`,  // Unique ID for each friend's expense
+            id: `${expense.id}-${index}`, // Unique ID for each friend's expense
             friendId: friendId,
             date: expense.date,
             description: expense.description,
             amount: splitAmount,
-            type: 'lent'
+            type: 'lent',
         };
     });
 }

@@ -1,7 +1,7 @@
 // AddExpenseScreen.jsx
 
-import React, { useState, useEffect } from 'react';
-import {Alert, View} from 'react-native';
+import React, {useState, useEffect, useLayoutEffect} from 'react';
+import {Alert, TouchableOpacity, View} from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { addExpense } from "../../../../StateManagement/Slices/ExpensesSlice";
 import Layout from './PageLayout';
@@ -13,6 +13,8 @@ import SelectedMembersDisplay from './PageLayout/Components/SelectedMembersDispl
 import MembersModal from './PageLayout/Components/MembersModal';
 import SplitPercentageModal from './PageLayout/Components/SplitPercentageModal';
 import SaveExpenseButton from './PageLayout/Components/SaveExpenseButton';
+import {useExpenses} from "../../Context";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const AddExpenseScreen = ({ navigation }) => {
     const dispatch = useDispatch();
@@ -44,7 +46,16 @@ const AddExpenseScreen = ({ navigation }) => {
             delete updatedSplit[member.name];
             setSplitPercentages(updatedSplit);
         } else {
-            setSelectedMembers([...selectedMembers, member.id]);
+            const newSelectedMembers = [...selectedMembers, member.id];
+            setSelectedMembers(newSelectedMembers);
+
+            // Recalculate equal split percentages
+            const newSplit = 100 / newSelectedMembers.length;
+            const updatedSplit = newSelectedMembers.reduce((acc, m) => {
+                acc[m] = newSplit.toFixed(2);
+                return acc;
+            }, {});
+            setSplitPercentages(updatedSplit);
         }
     };
 
@@ -57,7 +68,7 @@ const AddExpenseScreen = ({ navigation }) => {
         const expenseData = {
             description,
             amount: parseFloat(amount),
-            splitPercentages,
+            splitPercentages: splitPercentages,
             splitType,
             date: new Date().toLocaleDateString(),
             members: selectedMembers,

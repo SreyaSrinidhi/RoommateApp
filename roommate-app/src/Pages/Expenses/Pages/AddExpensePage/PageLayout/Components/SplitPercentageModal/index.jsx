@@ -15,8 +15,8 @@ const SplitPercentageModal = ({ selectedMembers, membersData, splitPercentages, 
                         placeholder="0"
                         placeholderTextColor="#9E9E9E"
                         keyboardType="numeric"
-                        value={splitPercentages[member?.name]?.toString() || ''}
-                        onChangeText={(value) => setSplitPercentages((prev) => ({ ...prev, [member?.name]: value }))}
+                        value={splitPercentages[member?.id || 'You']?.toString() || ''}
+                        onChangeText={(value) => setSplitPercentages((prev) => ({ ...prev, [member?.id || 'You']: value }))}
                     />
                     <Text className="text-[#4A154B] ml-2">%</Text>
                 </View>
