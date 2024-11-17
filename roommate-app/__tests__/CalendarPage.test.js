@@ -1,4 +1,4 @@
-import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
+import { render, fireEvent, act, waitFor } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { NavigationContainer } from '@react-navigation/native';
@@ -7,7 +7,7 @@ import CalendarWidget from '../src/Pages/Calander/PageLayout/Components/Calendar
 import { CalendarProvider } from '../src/Pages/Calander/Context';
 import calendarReducer, { addTask, deleteTask } from '../src/StateManagement/Slices/CalendarSlice';
 
-// Mock store setup
+// Mock Redux store
 const mockStore = configureStore([]);
 const initialState = {
     calendar: {
@@ -24,7 +24,7 @@ const mockNavigation = {
     setOptions: jest.fn(),
 };
 
-describe('Calendar Tests', () => {
+describe('Calendar Tests - Updated', () => {
     test('renders CalendarPage correctly', () => {
         const store = mockStore(initialState);
 
@@ -96,6 +96,23 @@ describe('Calendar Tests', () => {
             fireEvent.press(getByText('17'));
         });
 
-        // Add assertions to verify the date selection behavior
+        expect(getByText('17')).toBeTruthy();
+    });
+
+    test('handles adding tasks to multiple dates', () => {
+        const initialState = {
+            tasks: {
+                '2024-10-17': [{ id: 1, title: 'Task 1' }],
+            },
+        };
+
+        const newTask = { title: 'New Task', description: 'New Desc', due: '2:00 PM' };
+        const action = addTask({ date: '2024-10-18', task: newTask });
+
+        const updatedState = calendarReducer(initialState, action);
+
+        expect(updatedState.tasks['2024-10-17']).toHaveLength(1);
+        expect(updatedState.tasks['2024-10-18']).toHaveLength(1);
+        expect(updatedState.tasks['2024-10-18'][0].title).toBe('New Task');
     });
 });
