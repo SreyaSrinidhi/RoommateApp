@@ -1,5 +1,5 @@
 import React from "react";
-import { screen, render, fireEvent } from "@testing-library/react-native";
+import { render, fireEvent, waitFor } from "@testing-library/react-native";
 import { Provider } from "react-redux";
 import configureStore from "redux-mock-store";
 import Task from "../src/Pages/Calander/PageLayout/Components/Tasks/index";
@@ -20,6 +20,16 @@ const initialState = {
                     description: "Complete the lab report for COL",
                     due: "Due at 11:59 PM",
                     created: "User X",
+                },
+            ],
+            "2024-09-17": [
+                {
+                    id: 2,
+                    title: "PHYS 122 Labs",
+                    subtitle: "Lab #5: MPR",
+                    description: "Complete the lab report for MPR",
+                    due: "Due at 11:59 PM",
+                    created: "User Y",
                 },
             ],
         },
@@ -163,10 +173,15 @@ describe("Calendar Page Tests", () => {
     });
 
     //check that calendar page overall rendering
-    it("renders calendar page correctly", () => {
-        const { getByTestId, queryAllByText } = render(
+    it("renders calendar page correctly", async () => {
+        const updatedContextValue = {
+            ...mockContextValue,
+            selectedDate: "2024-09-17", // A date with a task still
+        }
+
+        const { getByTestId, queryAllByText, getByText } = render(
             <Provider store={store}>
-                <CalendarContext.Provider value={mockContextValue}>
+                <CalendarContext.Provider value={updatedContextValue}>
                     <Tabs pagesList={[{ name: "Calendar", component: CalendarPage }]} />
                 </CalendarContext.Provider>
             </Provider>

@@ -95,4 +95,29 @@ describe('HP-1: Navigate to Page from Tile', () => {
 
     })
 
+    test('Pressing unassigned tile does nothing', () => {
+        const { getByTestId } = render(
+            <Provider store={mockedStore}>
+                <Tabs pagesList={pagesList} />
+            </Provider>
+        );
+
+        blank1 = getByTestId('blank-tile-1');
+        blank2 = getByTestId('blank-tile-2');
+        blank3 = getByTestId('blank-tile-3');
+        blank4 = getByTestId('blank-tile-4')
+        
+        //press each tile
+        fireEvent.press(blank1);
+        fireEvent.press(blank2);
+        fireEvent.press(blank3);
+        fireEvent.press(blank4);
+
+        //assert page still rendered the same
+        // Check if the clickable tile for updates is rendered
+        expect(getByTestId('updates-tile')).toBeTruthy();
+        // Check if the tile for navigating to the Calendar is rendered
+        expect(getByTestId('calendar-tile')).toBeTruthy();
+    })
+
 })
