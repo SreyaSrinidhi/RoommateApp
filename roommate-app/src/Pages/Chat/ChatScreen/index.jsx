@@ -33,7 +33,7 @@ export default function ChatScreen() {
     };
 
     return (
-        <View className="flex-1 bg-[#4B225F]">
+        <View className="flex-1 bg-[#4B225F]" testID='chat-main-page'>
             {/* Chat Messages */}
             <FlatList
                 data={chatHistory}

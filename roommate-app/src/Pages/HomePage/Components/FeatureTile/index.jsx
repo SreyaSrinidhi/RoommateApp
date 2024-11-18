@@ -7,7 +7,7 @@ export default function FeatureTile({ bgColor, flex, text, TileComponent, onPres
             onPress={onPress}
             testID={testID}
             >
-            {TileComponent ? <TileComponent /> : <Text className="text-white text-xl font-bold">{text}</Text>}
+            {TileComponent ? <TileComponent /> : <Text className="text-white text-xl text-center font-bold">{text}</Text>}
         </TouchableOpacity>    
     )
 }

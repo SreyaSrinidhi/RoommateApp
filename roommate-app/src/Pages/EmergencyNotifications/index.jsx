@@ -13,7 +13,7 @@ export default function EmergencyNotifications( {navigation} ) {
         <EmergencyProvider>
             <AddButtonModal navigation={navigation}/>
             <EmergencyButtonModal/>
-            <ScrollView className="p-4 bg-[#4a154b]">
+            <ScrollView className="p-4 bg-[#4a154b]" testID='emergency-notifications-page'>
                 <ButtonGrid 
                     buttonData={buttons}
                 />  

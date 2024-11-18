@@ -5,6 +5,9 @@ import { configureStore } from '@reduxjs/toolkit';  //needed to mock redux store
 import HomePage from '../src/Pages/HomePage'; 
 import Tabs from '../src/Components/Tabs'
 import Calendar from '../src/Pages/Calander'
+import EmergencyNotifications from '../src/Pages/EmergencyNotifications';
+import Chat from '../src/Pages/Chat';
+import ExpenseTrackerPage from '../src/Pages/Chat';
 
 // Define a mock reducer for mocking store
 const mockReducer = {
@@ -16,7 +19,10 @@ const mockReducer = {
 //mock pagesList for navigation
 const pagesList = [
     { name: 'Home', component: HomePage },
+    {name: "Emergency Notifications", component: EmergencyNotifications},
     { name: 'Calendar', component: Calendar },
+    {name:"Chat", component: Chat},
+    {name:"Expenses", component: ExpenseTrackerPage},
     // Add other pages as needed
 ];
 
@@ -50,7 +56,13 @@ describe('HP-1: Navigate to Page from Tile', () => {
                         { id: '2', friendId: '10', date: 'Mar 10', description: 'Fuel up', amount: 24.03, type: 'lent' },
                         { id: '3', friendId: '45', date: 'Mar 06', description: 'Movie night', amount: 2.5, type: 'lent' },
                     ],
-                }
+                },
+                emergency: {
+                    buttons: {
+                        1 : {id: 1, title : 'Predefined Emergency', message: 'Predefined Emergency Message', bgColor: 'bg-red-500', isPermanent: true},
+                        2 : {id: 2, title: 'Test Emergency', message: 'Test emergency message', bgColor: 'bg-green-500', isPermanent: false},
+                    }
+                },
             },
         });
     });
@@ -70,6 +82,44 @@ describe('HP-1: Navigate to Page from Tile', () => {
          // Wait for the Calendar page to be rendered (make sure the text exists)
         await waitFor(() => {
             expect(screen.getByTestId('calendar-main-page')).toBeTruthy();
+        });
+    })
+
+    test('Pressing Emergency Notifications Tile navigates to Emergency Notifications page', async () => {
+        const { getByTestId, findByText } = render(
+            <Provider store={mockedStore}>
+                <Tabs pagesList={pagesList} />
+            </Provider>
+        );
+
+        //find the calendar tile and simulate a press
+        const emergencyTile = getByTestId('emergency-notifications-tile'); // Use the testID to find the element
+        expect(emergencyTile).toBeTruthy();
+
+        fireEvent.press(emergencyTile);   //simulate clicking on tile
+
+         // Wait for the Expenses page to be rendered (make sure the text exists)
+        await waitFor(() => {
+            expect(screen.getByTestId('emergency-notifications-page')).toBeTruthy();
+        });
+    })
+
+    test('Pressing Chat Tile navigates to Chat page', async () => {
+        const { getByTestId, findByText } = render(
+            <Provider store={mockedStore}>
+                <Tabs pagesList={pagesList} />
+            </Provider>
+        );
+
+        //find the calendar tile and simulate a press
+        const chatTile = getByTestId('chat-tile'); // Use the testID to find the element
+        expect(chatTile).toBeTruthy();
+
+        fireEvent.press(chatTile);   //simulate clicking on tile
+
+         // Wait for the Expenses page to be rendered (make sure the text exists)
+        await waitFor(() => {
+            expect(screen.getByTestId('chat-main-page')).toBeTruthy();
         });
     })
 
@@ -99,14 +149,10 @@ describe('HP-1: Navigate to Page from Tile', () => {
             </Provider>
         );
 
-        blank1 = getByTestId('blank-tile-1');
-        blank2 = getByTestId('blank-tile-2');
         blank3 = getByTestId('blank-tile-3');
         blank4 = getByTestId('blank-tile-4')
         
         //press each tile
-        fireEvent.press(blank1);
-        fireEvent.press(blank2);
         fireEvent.press(blank3);
         fireEvent.press(blank4);
 

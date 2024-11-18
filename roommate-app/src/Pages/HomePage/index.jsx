@@ -28,16 +28,16 @@ export default function HomePage() {
                     <FeatureTile
                         flex="flex-1"
                         bgColor="bg-green-500"
-                        text="Tall Tile 1"
-                        onPress={() => console.log('Change me to navigation to go to a page!')}
-                        testID="blank-tile-1"
+                        text="Emergency Notifications"
+                        onPress={() => navigation.navigate('Emergency Notifications')}
+                        testID="emergency-notifications-tile"
                     />
                     <FeatureTile
                         flex="flex-1"
                         bgColor="bg-red-500"
-                        text="Tall Tile 2"
-                        onPress={() => console.log('Change me to navigation to go to a page!')}
-                        testID="blank-tile-2"
+                        text="Chat"
+                        onPress={() => navigation.navigate('Chat')}
+                        testID="chat-tile"
                     />
                 </View>
 
@@ -60,7 +60,7 @@ export default function HomePage() {
                         text="Wide Tile - Full Width"
                         TileComponent={ExpensesWiget}
                         onPress={() => navigation.navigate('Expenses')}
-                         testID="expenses-tile"
+                        testID="expenses-tile"
                     />
                 </View>
 

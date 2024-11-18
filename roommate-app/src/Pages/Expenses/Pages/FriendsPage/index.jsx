@@ -57,7 +57,7 @@ const FriendsScreen = ({ navigation }) => {
     };
 
     return (
-        <Layout>
+        <Layout testID='expenses-friends-page'>
             <ExpensesWiget />
             <FlatList
                 data={friendsWithBalances}
