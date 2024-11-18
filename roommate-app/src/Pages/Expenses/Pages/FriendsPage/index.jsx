@@ -15,16 +15,21 @@ const FriendsScreen = ({ navigation }) => {
     // Update headerRight button in the parent navigation
     useEffect(() => {
         if (parentNavigation) {
+            console.log("Has Parent Navigation")
             parentNavigation.setOptions({
                 headerRight: () => (
                     <TouchableOpacity
                         onPress={() => navigation.navigate("AddExpense")}
                         style={styles.headerButton}
+                        testID='add-expense-button'
                     >
                         <Ionicons name="add-circle-outline" size={30} color="black" />
                     </TouchableOpacity>
                 ),
             });
+        }
+        else {
+            console.log("NO parent navigation")
         }
 
         const unsubscribe = () => {

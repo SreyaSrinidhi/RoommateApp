@@ -13,6 +13,8 @@ const FriendsStack = ({ navigation }) => {
 
     useEffect(() => {
         setParentNavigation(navigation);
+        console.log('Navigation state:', navigation.getState()); //log navigation state
+        console.log('Navigation prop:', navigation);  //log navigation prop
     }, [navigation]);
 
     return (

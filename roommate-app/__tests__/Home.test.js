@@ -7,7 +7,7 @@ import Tabs from '../src/Components/Tabs'
 import Calendar from '../src/Pages/Calander'
 import EmergencyNotifications from '../src/Pages/EmergencyNotifications';
 import Chat from '../src/Pages/Chat';
-import ExpenseTrackerPage from '../src/Pages/Chat';
+import ExpenseTrackerPage from '../src/Pages/Expenses';
 
 // Define a mock reducer for mocking store
 const mockReducer = {

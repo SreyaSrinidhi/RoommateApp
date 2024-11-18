@@ -3,7 +3,6 @@ import { Alert } from 'react-native'
 import { screen, render, fireEvent, waitFor } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import { NavigationContainer } from '@react-navigation/native'; 
 import EmergencyNotifications from '../src/Pages/EmergencyNotifications';
 import Tabs from '../src/Components/Tabs';
 
