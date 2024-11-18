@@ -3,6 +3,7 @@ import FeatureTile from './Components/FeatureTile';
 import { useNavigation } from '@react-navigation/native';
 import CalendarWidget from "../Calander/PageLayout/Components/CalendarWidget/homeWidget";
 import Updates from './Components/RecentUpdates';
+import ExpensesWiget from "../Expenses/Pages/FriendsPage/PageLayout/Components/ExpensesWiget";
 
 export default function HomePage() {
     const navigation = useNavigation();
@@ -49,6 +50,17 @@ export default function HomePage() {
                         TileComponent={CalendarWidget}
                         onPress={() => navigation.navigate('Calendar')}
                         testID="calendar-tile"
+                    />
+                </View>
+
+                {/* Row 3: Calendar widget */}
+                <View className="flex-row justify-center mb-3 h-fit">
+                    <FeatureTile
+                        flex="flex-1"
+                        text="Wide Tile - Full Width"
+                        TileComponent={ExpensesWiget}
+                        onPress={() => navigation.navigate('Expenses')}
+                         testID="expenses-tile"
                     />
                 </View>
 

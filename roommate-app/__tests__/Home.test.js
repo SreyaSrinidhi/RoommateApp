@@ -11,6 +11,7 @@ const mockReducer = {
     user: (state = { id: null }, action) => state, // simple reducer for 'user'
     calendar: (state = {}, action) => state, // simple reducer for 'calendar'
     emergency: (state = {}, action) => state, // simple reducer for 'emergency'
+    expenses: (state = {}, action) => state, // simple reducer for 'expenses
 };
 //mock pagesList for navigation
 const pagesList = [
@@ -35,6 +36,21 @@ describe('HP-1: Navigate to Page from Tile', () => {
                         ],
                     },
                 },
+                expenses: {
+                    friends: [
+                        {id:'18', name: 'Virat Kohli'},
+                        {id: '2', name: "Sunil Gavaskar"},
+                        {id:"10", name: "Sachin Tendulkar"},
+                        {id:"45", name: "Rohit Sharma"},
+                        {id:'7', name: 'MS Dhoni'},
+                    ],
+                    expenses: [
+                        { id: '1', friendId: '18', date: 'Mar 18', description: "Ellie's bakery", amount: 51.36, type: 'borrowed' },
+                        { id: '4', friendId: '18', date: 'Mar 18', description: "Ben Stokes", amount: 21.36, type: 'borrowed' },
+                        { id: '2', friendId: '10', date: 'Mar 10', description: 'Fuel up', amount: 24.03, type: 'lent' },
+                        { id: '3', friendId: '45', date: 'Mar 06', description: 'Movie night', amount: 2.5, type: 'lent' },
+                    ],
+                }
             },
         });
     });

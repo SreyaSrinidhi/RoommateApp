@@ -23,3 +23,10 @@ jest.mock('@expo/vector-icons', () => {
       // Add other icons as needed
     };
   });
+  // Mock react-native-gesture-handler to prevent errors in Jest environment
+jest.mock('react-native-gesture-handler', () => {
+  return {
+      GestureHandlerRootView: jest.fn(),
+      GestureHandler: jest.fn(),
+  };
+});
