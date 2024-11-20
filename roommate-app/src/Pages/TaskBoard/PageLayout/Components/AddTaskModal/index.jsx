@@ -1,12 +1,15 @@
 import React, { useState, useContext } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { TaskBoardContext } from '../../../Context';
+import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { TaskBoardContext } from '../../../Context';
 
 const AddTaskModal = ({ visible, onClose, category }) => {
     const [taskName, setTaskName] = useState('');
     const [assignedTo, setAssignedTo] = useState('');
     const [deadline, setDeadline] = useState('');
+    const [showDatePicker, setShowDatePicker] = useState(false);
     const { categories, setCategories } = useContext(TaskBoardContext);
 
     const handleSave = () => {
@@ -23,17 +26,20 @@ const AddTaskModal = ({ visible, onClose, category }) => {
         const newTask = {
             id: Date.now().toString(),
             name: taskName,
-            assignedTo: assignedTo || null,
-            deadline: deadline || null,
+            assignedTo: assignedTo || 'Unassigned',
+            deadline: deadline || 'No deadline',
         };
 
         const updatedCategories = categories.map((cat) =>
             cat.name === category.name
-                ? { ...cat, tasks: [...cat.tasks, newTask] }
+                ? {
+                    ...cat,
+                    tasks: [...cat.tasks, newTask],
+                }
                 : cat
         );
 
-        setCategories([...updatedCategories]);
+        setCategories(updatedCategories);
         setTaskName('');
         setAssignedTo('');
         setDeadline('');
@@ -42,35 +48,98 @@ const AddTaskModal = ({ visible, onClose, category }) => {
 
     return (
         <Modal visible={visible} animationType="slide" transparent={true}>
-            <View className="flex-1 justify-center items-center bg-black/50">
-                <View className="w-4/5 bg-[#EDEFF7] p-6 rounded-xl items-center relative">
-                    <TouchableOpacity onPress={onClose} className="absolute top-4 right-4">
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                <View style={{ width: '90%', backgroundColor: '#EDEFF7', padding: 20, borderRadius: 12 }}>
+                    {/* Close Button */}
+                    <TouchableOpacity onPress={onClose} style={{ position: 'absolute', top: 10, right: 10 }}>
                         <Ionicons name="close" size={24} color="#4A154B" />
                     </TouchableOpacity>
-                    <Text className="text-xl font-bold mb-4">Add Task</Text>
+
+                    {/* Title */}
+                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#4B225F', marginBottom: 20 }}>
+                        Add Task
+                    </Text>
+
+                    {/* Task Name Input */}
+                    <Text style={{ marginBottom: 5, fontWeight: 'bold', color: '#4B225F' }}>Task Name:</Text>
                     <TextInput
-                        placeholder="Task Name"
+                        placeholder="Enter task name"
                         value={taskName}
                         onChangeText={setTaskName}
-                        className="border border-[#4B225F] rounded-md p-3 mb-4 w-full"
+                        style={{
+                            borderWidth: 1,
+                            borderColor: '#4B225F',
+                            borderRadius: 8,
+                            padding: 10,
+                            marginBottom: 16,
+                            backgroundColor: '#FFFFFF',
+                        }}
                     />
-                    <TextInput
-                        placeholder="Assigned To"
-                        value={assignedTo}
-                        onChangeText={setAssignedTo}
-                        className="border border-[#4B225F] rounded-md p-3 mb-4 w-full"
-                    />
-                    <TextInput
-                        placeholder="Deadline"
-                        value={deadline}
-                        onChangeText={setDeadline}
-                        className="border border-[#4B225F] rounded-md p-3 mb-4 w-full"
-                    />
+
+                    {/* Assigned To Dropdown */}
+                    <Text style={{ marginBottom: 5, fontWeight: 'bold', color: '#4B225F' }}>Assign To:</Text>
+                    <Picker
+                        selectedValue={assignedTo}
+                        onValueChange={(value) => setAssignedTo(value)}
+                        style={{
+                            width: '100%',
+                            borderWidth: 1,
+                            borderColor: '#4B225F',
+                            backgroundColor: '#FFFFFF',
+                            marginBottom: 16,
+                        }}
+                    >
+                        <Picker.Item label="Unassigned" value="Unassigned" />
+                        <Picker.Item label="You" value="You" />
+                        <Picker.Item label="Teammate 1" value="Teammate 1" />
+                        <Picker.Item label="Teammate 2" value="Teammate 2" />
+                    </Picker>
+
+                    {/* Deadline Date Picker */}
+                    <Text style={{ marginBottom: 5, fontWeight: 'bold', color: '#4B225F' }}>Deadline:</Text>
+                    <TouchableOpacity
+                        onPress={() => setShowDatePicker(true)}
+                        style={{
+                            borderWidth: 1,
+                            borderColor: '#4B225F',
+                            borderRadius: 8,
+                            padding: 10,
+                            width: '100%',
+                            marginBottom: 16,
+                            backgroundColor: '#FFFFFF',
+                        }}
+                    >
+                        <Text style={{ color: '#4B225F' }}>
+                            {deadline || 'Select Deadline'}
+                        </Text>
+                    </TouchableOpacity>
+
+                    {showDatePicker && (
+                        <DateTimePicker
+                            value={deadline ? new Date(deadline) : new Date()}
+                            mode="date"
+                            display="default"
+                            onChange={(event, selectedDate) => {
+                                setShowDatePicker(false);
+                                if (selectedDate) {
+                                    setDeadline(selectedDate.toISOString().split('T')[0]);
+                                }
+                            }}
+                        />
+                    )}
+
+                    {/* Save Button */}
                     <TouchableOpacity
                         onPress={handleSave}
-                        className="bg-[#8CC49F] p-3 rounded-md w-full items-center"
+                        style={{
+                            backgroundColor: '#8CC49F',
+                            padding: 16,
+                            borderRadius: 8,
+                            alignItems: 'center',
+                            marginBottom: 8,
+                        }}
                     >
-                        <Text className="text-white font-bold">Save</Text>
+                        <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>Save</Text>
                     </TouchableOpacity>
                 </View>
             </View>

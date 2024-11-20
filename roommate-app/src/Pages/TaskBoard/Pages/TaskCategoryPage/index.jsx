@@ -1,33 +1,29 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useSelector } from 'react-redux';
 import { TaskBoardContext } from '../../Context';
 import AddTaskModal from './../../PageLayout/Components/AddTaskModal';
 import EditTaskModal from './../../PageLayout/Components/EditTaskModal';
 
 const TaskCategoryPage = ({ route }) => {
-    const { category } = route.params;
+    const { category: initialCategory } = route.params;
     const { categories } = useContext(TaskBoardContext);
     const [isAddModalVisible, setIsAddModalVisible] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-    const [currentCategory, setCurrentCategory] = useState(category);
+    const [currentCategory, setCurrentCategory] = useState(initialCategory);
 
-    // Sync tasks dynamically when `categories` updates
+    // Dynamically update currentCategory when categories change
     useEffect(() => {
-        const updatedCategory = categories.find(
-            (cat) => cat.name === category.name
-        );
+        const updatedCategory = categories.find((cat) => cat.name === initialCategory.name);
         if (updatedCategory) {
             setCurrentCategory(updatedCategory);
         }
-    }, [categories]);
+    }, [categories]); // Dependency array ensures this runs whenever categories are updated
 
     return (
         <View style={{ flex: 1, backgroundColor: '#4B225F', padding: 16 }}>
             <ScrollView>
-                {currentCategory.tasks?.length > 0 ? (
+                {currentCategory?.tasks?.length > 0 ? (
                     currentCategory.tasks.map((task) => (
                         <TouchableOpacity
                             key={task.id}
@@ -66,6 +62,7 @@ const TaskCategoryPage = ({ route }) => {
                 )}
             </ScrollView>
 
+            {/* Add Task Button */}
             <TouchableOpacity
                 onPress={() => setIsAddModalVisible(true)}
                 style={{
@@ -79,12 +76,14 @@ const TaskCategoryPage = ({ route }) => {
                 <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 16 }}>Add Task</Text>
             </TouchableOpacity>
 
+            {/* Add Task Modal */}
             <AddTaskModal
                 visible={isAddModalVisible}
                 category={currentCategory}
                 onClose={() => setIsAddModalVisible(false)}
             />
 
+            {/* Edit Task Modal */}
             {selectedTask && (
                 <EditTaskModal
                     visible={isEditModalVisible}
