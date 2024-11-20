@@ -57,6 +57,9 @@ const Tabs = ({ pagesList }) => {
                         } else if (route.name === 'Chat') {
                             return <FontAwesome5 name="comments" size={iconSize} color={color} />;
                         }
+                        else if (route.name === 'Task') {
+                            return <FontAwesome5 name="tasks" size={iconSize} color={color} />;
+                        }
                         return null;
                     },
                     tabBarActiveTintColor: '#FFFFFF',

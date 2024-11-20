@@ -13,6 +13,7 @@ import 'react-native-gesture-handler';
 import {NavigationContainer} from "@react-navigation/native";
 import Chat from "./src/Pages/Chat";
 import SignUpPage from "./src/Pages/SignUpPage";
+import TaskBoard from "./src/Pages/TaskBoard";
 
 export default function App() {
     const pagesList = [
@@ -22,7 +23,9 @@ export default function App() {
         {name: "Calendar", component: Calendar},
         {name:"Login", component: LoginPage},
         {name:"Chat", component: Chat},
-        {name:"Expenses", component: ExpenseTrackerPage}
+        {name:"Expenses", component: ExpenseTrackerPage},
+        { name: "Task", component: TaskBoard },
+
     ];
 
     return (
