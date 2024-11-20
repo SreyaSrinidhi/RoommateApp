@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, Image, StyleSheet } from 'react-native';
+import { View, FlatList, StyleSheet } from 'react-native';
+import ChatBubble from "@/PageElements/ChatPage/Components/ChatBubble";
+import MessageInput from "@/PageElements/ChatPage/Components/MessageInput";
 
 export default function ChatScreen() {
-    const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState([
         {
             id: '1',
@@ -19,7 +20,7 @@ export default function ChatScreen() {
         },
     ]);
 
-    const handleSend = () => {
+    const handleSend = (message) => {
         if (message.trim()) {
             const newMessage = {
                 id: Date.now().toString(),
@@ -28,7 +29,6 @@ export default function ChatScreen() {
                 timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             };
             setChatHistory([...chatHistory, newMessage]); // Adds message to the end of the array
-            setMessage('');
         }
     };
 
@@ -38,39 +38,13 @@ export default function ChatScreen() {
             <FlatList
                 data={chatHistory}
                 keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <View style={[styles.messageRow, item.isSender && styles.messageRowSender]}>
-                        {!item.isSender && (
-                            <Image
-                                style={styles.avatar}
-                                source={{ uri: item.avatar }}
-                            />
-                        )}
-                        <View style={[styles.messageBubble, item.isSender ? styles.senderBubble : styles.receiverBubble]}>
-                            <Text style={item.isSender ? styles.senderText : styles.receiverText}>
-                                {item.text}
-                            </Text>
-                            <Text style={[styles.timestamp, item.isSender ? styles.senderTimestamp : styles.receiverTimestamp]}>
-                                {item.timestamp}
-                            </Text>
-                        </View>
-                    </View>
-                )}
                 contentContainerStyle={styles.chatContainer}
+                renderItem={({item}) => <ChatBubble item={item} />}
             />
 
             {/* Message Input */}
             <View style={styles.inputContainer}>
-                <TextInput
-                    style={styles.textInput}
-                    placeholder="Type a message..."
-                    placeholderTextColor="#FFFFFF"
-                    value={message}
-                    onChangeText={setMessage}
-                />
-                <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-                    <Text style={styles.sendButtonText}>Send</Text>
-                </TouchableOpacity>
+                <MessageInput onSend={handleSend} />
             </View>
         </View>
     );
@@ -85,47 +59,6 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
         paddingTop: 40, // Add paddingTop for more space from the top
     },
-    messageRow: {
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        marginBottom: 12, // Equivalent to 'mb-3'
-    },
-    messageRowSender: {
-        justifyContent: 'flex-end',
-    },
-    avatar: {
-        width: 40, // Equivalent to 'w-10'
-        height: 40, // Equivalent to 'h-10'
-        borderRadius: 20, // Equivalent to 'rounded-full'
-        marginRight: 8, // Equivalent to 'mr-2'
-    },
-    messageBubble: {
-        maxWidth: '75%', // Equivalent to 'max-w-3/4'
-        padding: 12, // Equivalent to 'p-3'
-        borderRadius: 8, // Equivalent to 'rounded-lg'
-    },
-    senderBubble: {
-        backgroundColor: '#8CC49F', // Equivalent to 'bg-[#8CC49F]'
-    },
-    receiverBubble: {
-        backgroundColor: '#E5E7EB', // Equivalent to 'bg-gray-200'
-    },
-    senderText: {
-        color: '#FFFFFF', // Equivalent to 'text-white'
-    },
-    receiverText: {
-        color: '#000000', // Equivalent to 'text-black'
-    },
-    timestamp: {
-        fontSize: 10, // Equivalent to 'text-xs'
-        marginTop: 4, // Equivalent to 'mt-1'
-    },
-    senderTimestamp: {
-        color: '#D1D5DB', // Equivalent to 'text-gray-200'
-    },
-    receiverTimestamp: {
-        color: '#6B7280', // Equivalent to 'text-gray-500'
-    },
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -135,24 +68,5 @@ const styles = StyleSheet.create({
         marginHorizontal: 16, // Equivalent to 'mx-4'
         marginBottom: 16, // Equivalent to 'mb-4'
         borderRadius: 999, // Equivalent to 'rounded-full'
-    },
-    textInput: {
-        flex: 1,
-        height: 40, // Equivalent to 'h-10'
-        paddingHorizontal: 16, // Equivalent to 'px-4'
-        color: '#FFFFFF', // White text color
-        backgroundColor: 'transparent',
-        borderRadius: 999, // Rounded input field
-    },
-    sendButton: {
-        marginLeft: 8, // Equivalent to 'ml-2'
-        paddingHorizontal: 16, // Equivalent to 'px-4'
-        paddingVertical: 8, // Equivalent to 'py-2'
-        backgroundColor: '#4B225F', // Equivalent to 'bg-[#4B225F]'
-        borderRadius: 999, // Equivalent to 'rounded-full'
-    },
-    sendButtonText: {
-        color: '#FFFFFF', // Equivalent to 'text-white'
-        fontWeight: 'bold', // Equivalent to 'font-bold'
-    },
+    }
 });

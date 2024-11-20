@@ -1,42 +1,52 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet } from 'react-native';
+import {View, TextInput, Button, StyleSheet, TouchableOpacity, Text} from 'react-native';
 
 const MessageInput = ({ onSend }) => {
-    const [input, setInput] = useState('');
+    const [message, setMessage] = useState('');
 
     const handleSend = () => {
-        if (input) {
-            onSend(input);
-            setInput('');
+        if (message) {
+            onSend(message);
+            setMessage('');
         }
     };
 
     return (
-        <View style={styles.container}>
+        <>
             <TextInput
-                value={input}
-                onChangeText={setInput}
-                placeholder="Type a message"
                 style={styles.textInput}
+                placeholder="Type a message..."
+                placeholderTextColor="#FFFFFF"
+                value={message}
+                onChangeText={setMessage}
             />
-            <Button title="Send" onPress={handleSend} />
-        </View>
+            <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
+                <Text style={styles.sendButtonText}>Send</Text>
+            </TouchableOpacity>
+        </>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flexDirection: 'row', // Equivalent to 'flex-row'
-        alignItems: 'center', // Equivalent to 'items-center'
-    },
     textInput: {
-        flex: 1, // Equivalent to 'flex-1'
-        borderWidth: 1, // Equivalent to 'border'
-        borderColor: '#D1D5DB', // Equivalent to 'border-gray-300'
-        padding: 8, // Equivalent to 'p-2'
-        borderRadius: 8, // Equivalent to 'rounded-lg'
-        marginRight: 8, // Add spacing between input and button
-    },
+    flex: 1,
+        height: 40, // Equivalent to 'h-10'
+        paddingHorizontal: 16, // Equivalent to 'px-4'
+        color: '#FFFFFF', // White text color
+        backgroundColor: 'transparent',
+        borderRadius: 999, // Rounded input field
+},
+sendButton: {
+    marginLeft: 8, // Equivalent to 'ml-2'
+        paddingHorizontal: 16, // Equivalent to 'px-4'
+        paddingVertical: 8, // Equivalent to 'py-2'
+        backgroundColor: '#4B225F', // Equivalent to 'bg-[#4B225F]'
+        borderRadius: 999, // Equivalent to 'rounded-full'
+},
+sendButtonText: {
+    color: '#FFFFFF', // Equivalent to 'text-white'
+        fontWeight: 'bold', // Equivalent to 'font-bold'
+},
 });
 
 export default MessageInput;

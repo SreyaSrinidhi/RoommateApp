@@ -1,24 +1,70 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import {View, Text, StyleSheet, Image} from 'react-native';
 
-const ChatBubble = ({ message, isSender }) => {
+const ChatBubble = ({item}) => {
+    console.log(item);
+
     return (
-        <View style={[styles.chatBubble, isSender ? styles.senderBubble : styles.receiverBubble]}>
-            <Text>{message}</Text>
+        <View style={[styles.messageRow, item.isSender && styles.messageRowSender]}>
+            {!item.isSender && (
+                <Image
+                    style={styles.avatar}
+                    source={{ uri: item.avatar }}
+                />
+            )}
+            <View style={[styles.messageBubble, item.isSender ? styles.senderBubble : styles.receiverBubble]}>
+                <Text style={item.isSender ? styles.senderText : styles.receiverText}>
+                    {item.text}
+                </Text>
+                <Text style={[styles.timestamp, item.isSender ? styles.senderTimestamp : styles.receiverTimestamp]}>
+                    {item.timestamp}
+                </Text>
+            </View>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    chatBubble: {
-        padding: 12, // Equivalent to 'p-3'
-        borderRadius: 8, // Equivalent to 'rounded-lg'
+    messageRow: {
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        marginBottom: 16,
+    },
+    messageRowSender: {
+        flexDirection: 'row-reverse',
+    },
+    avatar: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        marginRight: 8,
+    },
+    messageBubble: {
+        maxWidth: '70%',
+        padding: 8,
+        borderRadius: 8,
     },
     senderBubble: {
-        backgroundColor: '#3B82F6', // Equivalent to 'bg-blue-500'
+        backgroundColor: '#EDEFF7',
     },
     receiverBubble: {
-        backgroundColor: '#E5E7EB', // Equivalent to 'bg-gray-200'
+        backgroundColor: '#2BAC76',
+    },
+    senderText: {
+        color: '#4A154B',
+    },
+    receiverText: {
+        color: '#4A154B',
+    },
+    timestamp: {
+        fontSize: 12,
+        marginTop: 4,
+    },
+    senderTimestamp: {
+        alignSelf: 'flex-end',
+    },
+    receiverTimestamp: {
+        alignSelf: 'flex-start',
     },
 });
 
