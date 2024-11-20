@@ -1,17 +1,24 @@
-import React, { useContext, useState } from 'react';
-import { Modal, View, Text, TextInput, Button, StyleSheet } from 'react-native';
-import { TaskBoardContext } from '../../../Context'
+import React, { useState, useContext } from 'react';
+import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { TaskBoardContext } from '../../../Context';
+import { AntDesign } from '@expo/vector-icons';
 
 const AddCategoryModal = () => {
-    const { isAddCategoryModalVisible, setIsAddCategoryModalVisible, categories, setCategories } = useContext(TaskBoardContext);
-    const [categoryName, setCategoryName] = useState('');
+    const { isAddCategoryModalVisible, setIsAddCategoryModalVisible, categories, setCategories } =
+        useContext(TaskBoardContext);
+    const [newCategoryName, setNewCategoryName] = useState('');
 
     const handleAddCategory = () => {
-        if (categoryName.trim()) {
-            setCategories([...categories, { name: categoryName, tasks: [] }]);
-            setCategoryName('');
+        if (newCategoryName.trim()) {
+            setCategories([...categories, { name: newCategoryName, tasks: [] }]);
+            setNewCategoryName('');
             setIsAddCategoryModalVisible(false);
         }
+    };
+
+    const handleClose = () => {
+        setNewCategoryName('');
+        setIsAddCategoryModalVisible(false);
     };
 
     return (
@@ -19,30 +26,26 @@ const AddCategoryModal = () => {
             visible={isAddCategoryModalVisible}
             transparent={true}
             animationType="slide"
-            onRequestClose={() => setIsAddCategoryModalVisible(false)}
+            onRequestClose={handleClose}
         >
-            <View style={styles.modalBackground}>
+            <View style={styles.modalOverlay}>
                 <View style={styles.modalContainer}>
-                    <Text style={styles.title}>Add New Category</Text>
+                    <View style={styles.modalHeader}>
+                        <Text style={styles.modalTitle}>Add New Category</Text>
+                        <TouchableOpacity onPress={handleClose}>
+                            <AntDesign name="close" size={24} color="#4B225F" />
+                        </TouchableOpacity>
+                    </View>
                     <TextInput
                         style={styles.input}
-                        placeholder="Category Name"
-                        placeholderTextColor="#AAAAAA"
-                        value={categoryName}
-                        onChangeText={setCategoryName}
+                        placeholder="Enter category name"
+                        placeholderTextColor="#4B225F" // Dark purple placeholder text
+                        value={newCategoryName}
+                        onChangeText={setNewCategoryName}
                     />
-                    <View style={styles.buttonContainer}>
-                        <Button
-                            title="Cancel"
-                            color="#FF6F61"
-                            onPress={() => setIsAddCategoryModalVisible(false)}
-                        />
-                        <Button
-                            title="Add"
-                            color="#A0D8B3"
-                            onPress={handleAddCategory}
-                        />
-                    </View>
+                    <TouchableOpacity style={styles.addButton} onPress={handleAddCategory}>
+                        <Text style={styles.addButtonText}>Add Category</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         </Modal>
@@ -50,38 +53,55 @@ const AddCategoryModal = () => {
 };
 
 const styles = StyleSheet.create({
-    modalBackground: {
+    modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
     },
     modalContainer: {
-        width: '80%',
-        backgroundColor: '#4B225F',
-        borderRadius: 8,
+        width: '90%',
+        backgroundColor: '#FFFFFF', // White modal
+        borderRadius: 10,
         padding: 20,
-        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
     },
-    title: {
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    modalTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#FFFFFF',
-        marginBottom: 10,
+        color: '#4B225F', // Dark purple text
     },
     input: {
         width: '100%',
+        height: 40,
+        backgroundColor: '#F5F5F5',
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        borderColor: '#4B225F', // Dark purple border
         borderWidth: 1,
-        borderColor: '#A0D8B3',
-        borderRadius: 4,
-        padding: 10,
-        marginBottom: 10,
-        color: '#FFFFFF',
+        marginBottom: 20,
+        color: '#4B225F', // Dark purple text
     },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
+    addButton: {
+        backgroundColor: '#A0D8B3', // Mint green
+        paddingVertical: 10,
+        borderRadius: 5,
+        alignItems: 'center',
+    },
+    addButtonText: {
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontSize: 16,
     },
 });
 

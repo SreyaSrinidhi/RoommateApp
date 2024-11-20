@@ -1,4 +1,3 @@
-// src/Components/Tabs.js
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import React, { useState } from "react";
@@ -16,7 +15,7 @@ const Tabs = ({ pagesList }) => {
     const AuthPage = isSigningUp ? SignUpPage : LoginPage;
 
     if (!id) {
-        console.log("No Id found")
+        console.log("No Id found");
         return (
             <NavigationContainer>
                 <AuthPage onSwitch={() => setIsSigningUp(!isSigningUp)} />
@@ -29,7 +28,7 @@ const Tabs = ({ pagesList }) => {
             <Tab.Navigator
                 screenOptions={({ route }) => ({
                     headerStyle: {
-                        backgroundColor: '#75597B',
+                        backgroundColor: '#75597B', // Customize header color
                         borderBottomWidth: 0,
                         elevation: 0,
                         shadowOpacity: 0,
@@ -38,7 +37,7 @@ const Tabs = ({ pagesList }) => {
                     headerTitleStyle: { fontSize: 24, fontWeight: 'bold' },
                     headerTitleAlign: 'left',
                     tabBarStyle: {
-                        backgroundColor: '#75597B',
+                        backgroundColor: '#75597B', // Customize tab bar color
                         borderTopWidth: 0,
                     },
                     tabBarLabelStyle: {
@@ -56,8 +55,7 @@ const Tabs = ({ pagesList }) => {
                             return <Entypo name="calendar" size={iconSize} color={color} />;
                         } else if (route.name === 'Chat') {
                             return <FontAwesome5 name="comments" size={iconSize} color={color} />;
-                        }
-                        else if (route.name === 'Task') {
+                        } else if (route.name === 'Task') {
                             return <FontAwesome5 name="tasks" size={iconSize} color={color} />;
                         }
                         return null;
@@ -67,7 +65,7 @@ const Tabs = ({ pagesList }) => {
                 })}
             >
                 {pagesList
-                    .filter((page) => page.name !== "Login")
+                    .filter((page) => page.name !== "Login") // Exclude Login from tabs
                     .map((page, index) => (
                         <Tab.Screen
                             key={page.name || `page-${index}`}
@@ -75,6 +73,7 @@ const Tabs = ({ pagesList }) => {
                             component={page.component}
                             options={{
                                 tabBarLabel: page.name,
+                                headerTitle: page.name === 'Task' ? 'Task Board' : page.name, // Set custom header title for Task
                             }}
                         />
                     ))}
