@@ -6,9 +6,15 @@
   <component name="ChangeListManager">
     <list default="true" id="6b4ae8f6-2241-453b-9437-feabb8f02d5f" name="Changes" comment="Created Tabs">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RoommateManagementApp/PageElements/ChatPage/ChatScreen/index.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/RoommateManagementApp/PageElements/ChatPage/ChatScreen/index.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RoommateManagementApp/PageElements/ChatPage/ChatScreen/index.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RoommateManagementApp/PageElements/ChatPage/Components/AvatarComponent/index.jsx" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/RoommateManagementApp/PageElements/ChatPage/Components/ChatBubble/index.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/RoommateManagementApp/PageElements/ChatPage/Components/ChatBubble/index.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/RoommateManagementApp/PageElements/ChatPage/Components/MessageInput/index.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/RoommateManagementApp/PageElements/ChatPage/Components/MessageInput/index.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RoommateManagementApp/PageElements/ChatPage/Context/index.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RoommateManagementApp/StateManagement/Slices/ChatSlice.js" beforeDir="false" afterPath="$PROJECT_DIR$/RoommateManagementApp/StateManagement/Slices/ChatSlice.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RoommateManagementApp/StateManagement/Slices/UserSlice.js" beforeDir="false" afterPath="$PROJECT_DIR$/RoommateManagementApp/StateManagement/Slices/UserSlice.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RoommateManagementApp/StateManagement/store.js" beforeDir="false" afterPath="$PROJECT_DIR$/RoommateManagementApp/StateManagement/store.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RoommateManagementApp/app/(app)/(tabs)/Chat/index.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/RoommateManagementApp/app/(app)/(tabs)/Chat/index.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,8 +27,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="JavaScript File" />
         <option value="JSX File" />
+        <option value="JavaScript File" />
       </list>
     </option>
   </component>
@@ -151,7 +157,7 @@
       <workItem from="1729209538546" duration="36521000" />
       <workItem from="1731133285822" duration="36000" />
       <workItem from="1731774958495" duration="7739000" />
-      <workItem from="1732098163071" duration="3511000" />
+      <workItem from="1732098163071" duration="4716000" />
     </task>
     <task id="LOCAL-00001" summary="Created Tabs">
       <option name="closed" value="true" />

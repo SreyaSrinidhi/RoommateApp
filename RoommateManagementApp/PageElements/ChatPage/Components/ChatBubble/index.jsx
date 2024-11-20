@@ -1,22 +1,24 @@
 import React from 'react';
 import {View, Text, StyleSheet, Image} from 'react-native';
+import {useSelector} from "react-redux";
 
 const ChatBubble = ({item}) => {
-    console.log(item);
+    const userId = useSelector(state => state.user.id);
+    const isSender = item.senderId === userId;
 
     return (
-        <View style={[styles.messageRow, item.isSender && styles.messageRowSender]}>
-            {!item.isSender && (
+        <View style={[styles.messageRow, isSender && styles.messageRowSender]}>
+            {!isSender && (
                 <Image
                     style={styles.avatar}
                     source={{ uri: item.avatar }}
                 />
             )}
-            <View style={[styles.messageBubble, item.isSender ? styles.senderBubble : styles.receiverBubble]}>
-                <Text style={item.isSender ? styles.senderText : styles.receiverText}>
+            <View style={[styles.messageBubble, isSender ? styles.senderBubble : styles.receiverBubble]}>
+                <Text style={isSender ? styles.senderText : styles.receiverText}>
                     {item.text}
                 </Text>
-                <Text style={[styles.timestamp, item.isSender ? styles.senderTimestamp : styles.receiverTimestamp]}>
+                <Text style={[styles.timestamp, isSender ? styles.senderTimestamp : styles.receiverTimestamp]}>
                     {item.timestamp}
                 </Text>
             </View>

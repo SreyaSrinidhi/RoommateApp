@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import calendarReducer from './Slices/CalendarSlice';
 import userReducer from './Slices/UserSlice';
 import emergencyReducer from './Slices/EmergencyButtonSlice'
+import chatReducer from './Slices/ChatSlice';
 
 // initial state for testing purposes
 export const initialState = {
@@ -20,6 +21,7 @@ export const rootReducer = {
 //store configuration
 export const store = configureStore({
     reducer: {
+        chat: chatReducer,
         user: userReducer,
         calendar: calendarReducer,
         emergency: emergencyReducer,
