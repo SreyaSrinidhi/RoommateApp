@@ -7,7 +7,7 @@ import EditTaskModal from './../../PageLayout/Components/EditTaskModal';
 
 const TaskCategoryPage = ({ route }) => {
     const { category: initialCategory } = route.params;
-    const categories = useSelector((state) => state.taskBoard.categories); // Fetch categories from Redux
+    const categories = useSelector((state) => state.taskBoard.categories);
     const dispatch = useDispatch();
 
     const [isAddModalVisible, setIsAddModalVisible] = useState(false);
@@ -15,14 +15,14 @@ const TaskCategoryPage = ({ route }) => {
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [currentCategory, setCurrentCategory] = useState(initialCategory);
     const [sortedTasks, setSortedTasks] = useState([]);
-    const [isSorted, setIsSorted] = useState(false); // Track sorting state
+    const [isSorted, setIsSorted] = useState(false);
 
-    // Dynamically update currentCategory and tasks when categories change
+    // Dynamically update `currentCategory` and tasks when categories change
     useEffect(() => {
         const updatedCategory = categories.find((cat) => cat.name === initialCategory.name);
         if (updatedCategory) {
             setCurrentCategory(updatedCategory);
-            setSortedTasks(sortByDefault(updatedCategory.tasks)); // Set initial order
+            setSortedTasks(sortByDefault(updatedCategory.tasks)); // Sort tasks by default
         }
     }, [categories]);
 
@@ -41,17 +41,17 @@ const TaskCategoryPage = ({ route }) => {
         // Sort tasks with deadlines in ascending order
         tasksWithDeadline.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
 
-        setSortedTasks([...tasksWithDeadline, ...tasksWithoutDeadline]); // Append tasks without deadlines at the end
-        setIsSorted(true); // Indicate that tasks are sorted
+        setSortedTasks([...tasksWithDeadline, ...tasksWithoutDeadline]); // Append tasks without deadlines
+        setIsSorted(true);
     };
 
-    // Unsort and return to default format
+    // Reset to default sorting
     const unsortTasks = () => {
-        setSortedTasks(sortByDefault(currentCategory.tasks)); // Reset to default sorting
-        setIsSorted(false); // Indicate that tasks are unsorted
+        setSortedTasks(sortByDefault(currentCategory.tasks)); // Reset to default order
+        setIsSorted(false);
     };
 
-    // Handle editing tasks
+    // Handle task editing
     const handleEditTask = (updatedTask) => {
         dispatch(editTask({ categoryName: currentCategory.name, taskId: updatedTask.id, updatedTask }));
         setIsEditModalVisible(false);
@@ -65,7 +65,7 @@ const TaskCategoryPage = ({ route }) => {
                         <TouchableOpacity
                             key={task.id}
                             style={{
-                                backgroundColor: task.status === 'done' ? '#A0D8B3' : '#EDEFF7', // Mint green if done
+                                backgroundColor: task.status === 'done' ? '#A0D8B3' : '#EDEFF7',
                                 padding: 16,
                                 marginBottom: 8,
                                 borderRadius: 16,
@@ -75,7 +75,7 @@ const TaskCategoryPage = ({ route }) => {
                                 shadowRadius: 2,
                             }}
                             onPress={() => {
-                                setSelectedTask(task);
+                                setSelectedTask(task); // Set the correct task
                                 setIsEditModalVisible(true);
                             }}
                         >
@@ -99,7 +99,7 @@ const TaskCategoryPage = ({ route }) => {
                 )}
             </ScrollView>
 
-            {/* Sort/Unsort Text */}
+            {/* Sort/Unsort Button */}
             <TouchableOpacity
                 onPress={isSorted ? unsortTasks : sortByDeadline}
                 style={{

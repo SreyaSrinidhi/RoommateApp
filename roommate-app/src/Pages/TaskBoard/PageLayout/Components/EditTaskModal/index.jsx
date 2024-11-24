@@ -1,20 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Picker } from '@react-native-picker/picker';
-import { useDispatch, useSelector } from 'react-redux';
-import { editTask } from '../../../../../StateManagement/Slices/TaskBoardSlice'; // Adjust path to your slice
+import { useDispatch } from 'react-redux';
+import { editTask } from '../../../../../StateManagement/Slices/TaskBoardSlice'; // Adjust path
 
 const EditTaskModal = ({ visible, onClose, task, category }) => {
-    const [editedTask, setEditedTask] = useState({ ...task });
+    const [editedTask, setEditedTask] = useState(null);
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
     const [isPickerVisible, setPickerVisible] = useState(false);
 
     const dispatch = useDispatch();
 
+    // Sync `editedTask` with the current task when the task changes
+    useEffect(() => {
+        setEditedTask(task);
+    }, [task]);
+
     const handleSave = () => {
-        if (!editedTask.name?.trim()) {
+        if (!editedTask?.name?.trim()) {
             Alert.alert('Error', 'Task name cannot be empty!');
             return;
         }
@@ -34,12 +39,21 @@ const EditTaskModal = ({ visible, onClose, task, category }) => {
     };
 
     const handleDateConfirm = (selectedDate) => {
+        const localDate = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000)
+            .toISOString()
+            .split('T')[0]; // Format as 'YYYY-MM-DD'
+
         setEditedTask({
             ...editedTask,
-            deadline: selectedDate.toISOString().split('T')[0],
+            deadline: localDate,
         });
         setDatePickerVisible(false);
     };
+
+
+    if (!editedTask) {
+        return null; // Prevent rendering if no task is selected
+    }
 
     return (
         <Modal visible={visible} animationType="slide" transparent={true}>
@@ -60,9 +74,7 @@ const EditTaskModal = ({ visible, onClose, task, category }) => {
                     <TextInput
                         placeholder="Enter Task Name"
                         value={editedTask.name}
-                        onChangeText={(text) =>
-                            setEditedTask({ ...editedTask, name: text })
-                        }
+                        onChangeText={(text) => setEditedTask({ ...editedTask, name: text })}
                         style={{
                             borderWidth: 1,
                             borderColor: '#4B225F',
@@ -78,9 +90,7 @@ const EditTaskModal = ({ visible, onClose, task, category }) => {
                     <TextInput
                         placeholder="Enter Task Description"
                         value={editedTask.description}
-                        onChangeText={(text) =>
-                            setEditedTask({ ...editedTask, description: text })
-                        }
+                        onChangeText={(text) => setEditedTask({ ...editedTask, description: text })}
                         style={{
                             borderWidth: 1,
                             borderColor: '#4B225F',
@@ -90,8 +100,30 @@ const EditTaskModal = ({ visible, onClose, task, category }) => {
                             backgroundColor: '#FFFFFF',
                         }}
                         multiline
-                        blurOnSubmit={true}
-                        onSubmitEditing={() => {}}
+                    />
+
+                    {/* Deadline Picker */}
+                    <Text style={{ marginBottom: 5, fontWeight: 'bold', color: '#4B225F' }}>Deadline:</Text>
+                    <TouchableOpacity
+                        onPress={() => setDatePickerVisible(true)}
+                        style={{
+                            borderWidth: 1,
+                            borderColor: '#4B225F',
+                            borderRadius: 8,
+                            padding: 10,
+                            marginBottom: 16,
+                            backgroundColor: '#FFFFFF',
+                        }}
+                    >
+                        <Text style={{ color: '#4B225F' }}>
+                            {editedTask.deadline || 'Select Deadline'}
+                        </Text>
+                    </TouchableOpacity>
+                    <DateTimePickerModal
+                        isVisible={isDatePickerVisible}
+                        mode="date"
+                        onConfirm={handleDateConfirm}
+                        onCancel={() => setDatePickerVisible(false)}
                     />
 
                     {/* Assign To Dropdown */}
@@ -112,7 +144,6 @@ const EditTaskModal = ({ visible, onClose, task, category }) => {
                         </Text>
                     </TouchableOpacity>
 
-                    {/* Picker Modal */}
                     {isPickerVisible && (
                         <Modal
                             transparent
@@ -166,31 +197,7 @@ const EditTaskModal = ({ visible, onClose, task, category }) => {
                         </Modal>
                     )}
 
-                    {/* Deadline Date Picker */}
-                    <Text style={{ marginBottom: 5, fontWeight: 'bold', color: '#4B225F' }}>Deadline:</Text>
-                    <TouchableOpacity
-                        onPress={() => setDatePickerVisible(true)}
-                        style={{
-                            borderWidth: 1,
-                            borderColor: '#4B225F',
-                            borderRadius: 8,
-                            padding: 10,
-                            marginBottom: 16,
-                            backgroundColor: '#FFFFFF',
-                        }}
-                    >
-                        <Text style={{ color: '#4B225F' }}>
-                            {editedTask.deadline || 'Select Deadline'}
-                        </Text>
-                    </TouchableOpacity>
-                    <DateTimePickerModal
-                        isVisible={isDatePickerVisible}
-                        mode="date"
-                        onConfirm={handleDateConfirm}
-                        onCancel={() => setDatePickerVisible(false)}
-                    />
-
-                    {/* Toggle Status Button */}
+                    {/* Toggle Status */}
                     <TouchableOpacity
                         onPress={toggleStatus}
                         style={{
@@ -199,7 +206,6 @@ const EditTaskModal = ({ visible, onClose, task, category }) => {
                             borderRadius: 8,
                             alignItems: 'center',
                             marginBottom: 8,
-                            width: '100%',
                         }}
                     >
                         <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>
@@ -215,8 +221,6 @@ const EditTaskModal = ({ visible, onClose, task, category }) => {
                             padding: 16,
                             borderRadius: 8,
                             alignItems: 'center',
-                            marginBottom: 8,
-                            width: '100%',
                         }}
                     >
                         <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>Save</Text>
