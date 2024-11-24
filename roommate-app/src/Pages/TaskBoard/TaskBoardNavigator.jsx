@@ -1,10 +1,18 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import TaskBoardPage from './PageLayout';
-import ShowAllTasks from './Pages/ShowAllTasks';
+// import ShowAllTasks from './Pages/ShowAllTasks'; // Commented out the original component
 import TaskCategoryPage from './Pages/TaskCategoryPage';
 
 const Stack = createStackNavigator();
+
+// Temporary placeholder component to display the alert
+const UpcomingFeature = () => {
+    React.useEffect(() => {
+        alert("Upcoming feature for now!");
+    }, []);
+    return null; // No UI since we only want the alert
+};
 
 const TaskBoardNavigator = () => {
     return (
@@ -27,7 +35,7 @@ const TaskBoardNavigator = () => {
             {/* Show All Tasks */}
             <Stack.Screen
                 name="ShowAllTasks"
-                component={ShowAllTasks}
+                component={UpcomingFeature} // Use the placeholder component
                 options={{
                     title: 'All Tasks', // Title for the Show All Tasks page
                 }}

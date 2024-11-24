@@ -1,15 +1,17 @@
 import React, { useState, useContext } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker'; // New Date Picker
 import { TaskBoardContext } from '../../../Context';
+import { Picker } from '@react-native-picker/picker';
 
 const AddTaskModal = ({ visible, onClose, category }) => {
     const [taskName, setTaskName] = useState('');
+    const [taskDescription, setTaskDescription] = useState('');
     const [assignedTo, setAssignedTo] = useState('');
     const [deadline, setDeadline] = useState('');
-    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [isDatePickerVisible, setDatePickerVisible] = useState(false); // For the new date picker
+    const [isPickerVisible, setPickerVisible] = useState(false); // For dropdown visibility
     const { categories, setCategories } = useContext(TaskBoardContext);
 
     const handleSave = () => {
@@ -26,8 +28,10 @@ const AddTaskModal = ({ visible, onClose, category }) => {
         const newTask = {
             id: Date.now().toString(),
             name: taskName,
+            description: taskDescription || 'No description provided.',
             assignedTo: assignedTo || 'Unassigned',
             deadline: deadline || 'No deadline',
+            status: 'pending',
         };
 
         const updatedCategories = categories.map((cat) =>
@@ -40,10 +44,25 @@ const AddTaskModal = ({ visible, onClose, category }) => {
         );
 
         setCategories(updatedCategories);
+        resetInputs();
+        onClose();
+    };
+
+    const resetInputs = () => {
         setTaskName('');
+        setTaskDescription('');
         setAssignedTo('');
         setDeadline('');
-        onClose();
+    };
+
+    const handleClose = () => {
+        resetInputs(); // Reset inputs first
+        requestAnimationFrame(onClose); // Ensure modal closes immediately
+    };
+
+    const handleDateConfirm = (selectedDate) => {
+        setDeadline(selectedDate.toISOString().split('T')[0]);
+        setDatePickerVisible(false);
     };
 
     return (
@@ -51,7 +70,7 @@ const AddTaskModal = ({ visible, onClose, category }) => {
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
                 <View style={{ width: '90%', backgroundColor: '#EDEFF7', padding: 20, borderRadius: 12 }}>
                     {/* Close Button */}
-                    <TouchableOpacity onPress={onClose} style={{ position: 'absolute', top: 10, right: 10 }}>
+                    <TouchableOpacity onPress={handleClose} style={{ position: 'absolute', top: 10, right: 10 }}>
                         <Ionicons name="close" size={24} color="#4A154B" />
                     </TouchableOpacity>
 
@@ -63,7 +82,7 @@ const AddTaskModal = ({ visible, onClose, category }) => {
                     {/* Task Name Input */}
                     <Text style={{ marginBottom: 5, fontWeight: 'bold', color: '#4B225F' }}>Task Name:</Text>
                     <TextInput
-                        placeholder="Enter task name"
+                        placeholder="Enter Task Name"
                         value={taskName}
                         onChangeText={setTaskName}
                         style={{
@@ -76,29 +95,101 @@ const AddTaskModal = ({ visible, onClose, category }) => {
                         }}
                     />
 
-                    {/* Assigned To Dropdown */}
-                    <Text style={{ marginBottom: 5, fontWeight: 'bold', color: '#4B225F' }}>Assign To:</Text>
-                    <Picker
-                        selectedValue={assignedTo}
-                        onValueChange={(value) => setAssignedTo(value)}
+                    {/* Task Description Input */}
+                    <Text style={{ marginBottom: 5, fontWeight: 'bold', color: '#4B225F' }}>Task Description:</Text>
+                    <TextInput
+                        placeholder="Enter Task Description"
+                        value={taskDescription}
+                        onChangeText={setTaskDescription}
                         style={{
-                            width: '100%',
                             borderWidth: 1,
                             borderColor: '#4B225F',
-                            backgroundColor: '#FFFFFF',
+                            borderRadius: 8,
+                            padding: 10,
                             marginBottom: 16,
+                            backgroundColor: '#FFFFFF',
+                        }}
+                        multiline
+                        blurOnSubmit={true} // Fix for keyboard dismissal
+                        onSubmitEditing={() => {}}
+                    />
+
+                    {/* Assign To Dropdown */}
+                    <Text style={{ marginBottom: 5, fontWeight: 'bold', color: '#4B225F' }}>Assign To:</Text>
+                    <TouchableOpacity
+                        onPress={() => setPickerVisible(true)}
+                        style={{
+                            borderWidth: 1,
+                            borderColor: '#4B225F',
+                            borderRadius: 8,
+                            padding: 10,
+                            marginBottom: 16,
+                            backgroundColor: '#FFFFFF',
                         }}
                     >
-                        <Picker.Item label="Unassigned" value="Unassigned" />
-                        <Picker.Item label="You" value="You" />
-                        <Picker.Item label="Teammate 1" value="Teammate 1" />
-                        <Picker.Item label="Teammate 2" value="Teammate 2" />
-                    </Picker>
+                        <Text style={{ color: '#4B225F' }}>
+                            {assignedTo || 'Select Assignee'}
+                        </Text>
+                    </TouchableOpacity>
+
+                    {/* Picker Modal */}
+                    {isPickerVisible && (
+                        <Modal
+                            transparent
+                            animationType="fade"
+                            onRequestClose={() => setPickerVisible(false)}
+                        >
+                            <View
+                                style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                }}
+                            >
+                                <View
+                                    style={{
+                                        width: '80%',
+                                        backgroundColor: '#FFFFFF',
+                                        borderRadius: 12,
+                                        padding: 20,
+                                    }}
+                                >
+                                    <Picker
+                                        selectedValue={assignedTo}
+                                        onValueChange={(value) => {
+                                            setAssignedTo(value);
+                                            setPickerVisible(false);
+                                        }}
+                                    >
+                                        <Picker.Item label="Unassigned" value="" />
+                                        <Picker.Item label="You" value="You" />
+                                        <Picker.Item label="Teammate 1" value="Teammate 1" />
+                                        <Picker.Item label="Teammate 2" value="Teammate 2" />
+                                    </Picker>
+                                    <TouchableOpacity
+                                        onPress={() => setPickerVisible(false)}
+                                        style={{
+                                            marginTop: 10,
+                                            padding: 10,
+                                            backgroundColor: '#8A7191',
+                                            borderRadius: 8,
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>
+                                            Close
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </Modal>
+                    )}
 
                     {/* Deadline Date Picker */}
                     <Text style={{ marginBottom: 5, fontWeight: 'bold', color: '#4B225F' }}>Deadline:</Text>
                     <TouchableOpacity
-                        onPress={() => setShowDatePicker(true)}
+                        onPress={() => setDatePickerVisible(true)}
                         style={{
                             borderWidth: 1,
                             borderColor: '#4B225F',
@@ -113,26 +204,18 @@ const AddTaskModal = ({ visible, onClose, category }) => {
                             {deadline || 'Select Deadline'}
                         </Text>
                     </TouchableOpacity>
-
-                    {showDatePicker && (
-                        <DateTimePicker
-                            value={deadline ? new Date(deadline) : new Date()}
-                            mode="date"
-                            display="default"
-                            onChange={(event, selectedDate) => {
-                                setShowDatePicker(false);
-                                if (selectedDate) {
-                                    setDeadline(selectedDate.toISOString().split('T')[0]);
-                                }
-                            }}
-                        />
-                    )}
+                    <DateTimePickerModal
+                        isVisible={isDatePickerVisible}
+                        mode="date"
+                        onConfirm={handleDateConfirm}
+                        onCancel={() => setDatePickerVisible(false)}
+                    />
 
                     {/* Save Button */}
                     <TouchableOpacity
                         onPress={handleSave}
                         style={{
-                            backgroundColor: '#8CC49F',
+                            backgroundColor: '#8A7191',
                             padding: 16,
                             borderRadius: 8,
                             alignItems: 'center',

@@ -28,7 +28,7 @@ const TaskCategoryPage = ({ route }) => {
                         <TouchableOpacity
                             key={task.id}
                             style={{
-                                backgroundColor: '#EDEFF7',
+                                backgroundColor: task.status === 'done' ? '#A0D8B3' : '#EDEFF7', // Mint green if done
                                 padding: 16,
                                 marginBottom: 8,
                                 borderRadius: 16,
@@ -44,7 +44,7 @@ const TaskCategoryPage = ({ route }) => {
                         >
                             <View>
                                 <Text style={{ color: '#4B225F', fontWeight: 'bold', fontSize: 16 }}>
-                                    {task.name}
+                                    {task.name || 'Untitled Task'}
                                 </Text>
                                 <Text style={{ color: '#4B225F', fontSize: 14 }}>
                                     Assigned to: {task.assignedTo || 'Unassigned'}
