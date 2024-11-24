@@ -23,4 +23,12 @@ export default function ChatScreen() {
             </View>
         </View>
     );
+
 }
+
+const styles = {
+    container: {
+            flex: 1,
+            backgroundColor: '#4B225F', // Equivalent to 'bg-[#4B225F]'
+       },
+   }

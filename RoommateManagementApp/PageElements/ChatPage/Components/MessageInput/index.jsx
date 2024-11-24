@@ -1,57 +1,70 @@
 import React, { useState } from 'react';
-import { TextInput, StyleSheet, TouchableOpacity, Text} from 'react-native';
-import {useDispatch, useSelector} from "react-redux";
-import {sendMessage} from "@/StateManagement/Slices/ChatSlice";
-
+import { View, TextInput, StyleSheet, TouchableOpacity, Text, KeyboardAvoidingView, Platform } from 'react-native';
+import { useDispatch, useSelector } from "react-redux";
+import { sendMessage } from "@/StateManagement/Slices/ChatSlice";
 
 const MessageInput = () => {
     const [message, setMessage] = useState('');
-    const userID = useSelector(state => state.user.id);
-    const dispatch  = useDispatch();
+    const userID = useSelector((state) => state.user.id);
+    const dispatch = useDispatch();
 
     const handleSend = () => {
-        if (message) {
-            dispatch(sendMessage({text: message, senderId: userID}));
-            setMessage("");
+        if (message.trim()) { // Prevent sending empty or whitespace-only messages
+            dispatch(sendMessage({ text: message.trim(), senderId: userID }));
+            setMessage(""); // Clear input after sending
+        } else {
+            console.log("Cannot send an empty message");
         }
-        };
-
-        return (
-            <>
-                <TextInput
-                    style={styles.textInput}
-                    placeholder="Type a message..."
-                    placeholderTextColor="#FFFFFF"
-                    value={message}
-                    onChangeText={setMessage}
-                />
-                <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-                    <Text style={styles.sendButtonText}>Send</Text>
-                </TouchableOpacity>
-            </>
-        );
     };
 
-    const styles = StyleSheet.create({
-        textInput: {
-            flex: 1,
-            height: 40, // Equivalent to 'h-10'
-            paddingHorizontal: 16, // Equivalent to 'px-4'
-            color: '#FFFFFF', // White text color
-            backgroundColor: 'transparent',
-            borderRadius: 999, // Rounded input field
-        },
-        sendButton: {
-            marginLeft: 8, // Equivalent to 'ml-2'
-            paddingHorizontal: 16, // Equivalent to 'px-4'
-            paddingVertical: 8, // Equivalent to 'py-2'
-            backgroundColor: '#4B225F', // Equivalent to 'bg-[#4B225F]'
-            borderRadius: 999, // Equivalent to 'rounded-full'
-        },
-        sendButtonText: {
-            color: '#FFFFFF', // Equivalent to 'text-white'
-            fontWeight: 'bold', // Equivalent to 'font-bold'
-        },
-    });
+    return (
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.container}
+        >
+            <TextInput
+                style={styles.textInput}
+                placeholder="Type a message..."
+                placeholderTextColor="#BBBBBB"
+                value={message}
+                onChangeText={setMessage}
+                onSubmitEditing={handleSend} // Send message on "Enter" key press
+            />
+            <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
+                <Text style={styles.sendButtonText}>Send</Text>
+            </TouchableOpacity>
+        </KeyboardAvoidingView>
+    );
+};
 
-    export default MessageInput;
+const styles = StyleSheet.create({
+    container: {
+        flexDirection: 'row', // Layout text input and button horizontally
+        alignItems: 'center', // Center items vertically
+        padding: 8, // Padding around the container
+        backgroundColor: '#EDEFF7', // Dark background for input area
+        borderTopWidth: 1, // Add a border on top
+        borderTopColor: '#333333', // Border color
+    },
+    textInput: {
+        flex: 1, // Input takes up remaining space
+        height: 40, // Equivalent to 'h-10'
+        paddingHorizontal: 16, // Padding inside the input
+        color: '#FFFFFF', // White text color
+        backgroundColor: '#222222', // Slightly lighter background for contrast
+        borderRadius: 20, // Rounded input field
+    },
+    sendButton: {
+        marginLeft: 8, // Space between input and button
+        paddingHorizontal: 16, // Button padding
+        paddingVertical: 8, // Vertical padding
+        backgroundColor: '#4B225F', // Purple background
+        borderRadius: 20, // Fully rounded button
+    },
+    sendButtonText: {
+        color: '#FFFFFF', // White text color
+        fontWeight: 'bold', // Bold font
+    },
+});
+
+export default MessageInput;

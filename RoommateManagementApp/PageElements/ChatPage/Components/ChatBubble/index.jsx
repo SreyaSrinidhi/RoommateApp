@@ -6,6 +6,8 @@ const ChatBubble = ({item}) => {
     const userId = useSelector(state => state.user.id);
     const isSender = item.senderId === userId;
 
+    console.log(item)
+
     return (
         <View style={[styles.messageRow, isSender && styles.messageRowSender]}>
             {!isSender && (
