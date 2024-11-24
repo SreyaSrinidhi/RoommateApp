@@ -11,20 +11,48 @@ const TaskCategoryPage = ({ route }) => {
     const [selectedTask, setSelectedTask] = useState(null);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [currentCategory, setCurrentCategory] = useState(initialCategory);
+    const [sortedTasks, setSortedTasks] = useState([]);
+    const [isSorted, setIsSorted] = useState(false); // Track sorting state
 
-    // Dynamically update currentCategory when categories change
+    // Dynamically update currentCategory and tasks when categories change
     useEffect(() => {
         const updatedCategory = categories.find((cat) => cat.name === initialCategory.name);
         if (updatedCategory) {
             setCurrentCategory(updatedCategory);
+            setSortedTasks(sortByDefault(updatedCategory.tasks)); // Set initial order
         }
-    }, [categories]); // Dependency array ensures this runs whenever categories are updated
+    }, [categories]);
+
+    // Default sorting: Pending first, then Done
+    const sortByDefault = (tasks) => {
+        const pendingTasks = tasks.filter((task) => task.status !== 'done');
+        const doneTasks = tasks.filter((task) => task.status === 'done');
+        return [...pendingTasks, ...doneTasks];
+    };
+
+    // Sort by Deadline
+    const sortByDeadline = () => {
+        const tasksWithDeadline = [...sortedTasks].filter((task) => task.deadline);
+        const tasksWithoutDeadline = [...sortedTasks].filter((task) => !task.deadline);
+
+        // Sort tasks with deadlines in ascending order
+        tasksWithDeadline.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+        setSortedTasks([...tasksWithDeadline, ...tasksWithoutDeadline]); // Append tasks without deadlines at the end
+        setIsSorted(true); // Indicate that tasks are sorted
+    };
+
+    // Unsort and return to default format
+    const unsortTasks = () => {
+        setSortedTasks(sortByDefault(currentCategory.tasks)); // Reset to default sorting
+        setIsSorted(false); // Indicate that tasks are unsorted
+    };
 
     return (
         <View style={{ flex: 1, backgroundColor: '#4B225F', padding: 16 }}>
             <ScrollView>
-                {currentCategory?.tasks?.length > 0 ? (
-                    currentCategory.tasks.map((task) => (
+                {sortedTasks?.length > 0 ? (
+                    sortedTasks.map((task) => (
                         <TouchableOpacity
                             key={task.id}
                             style={{
@@ -61,6 +89,19 @@ const TaskCategoryPage = ({ route }) => {
                     </Text>
                 )}
             </ScrollView>
+
+            {/* Sort/Unsort Text */}
+            <TouchableOpacity
+                onPress={isSorted ? unsortTasks : sortByDeadline}
+                style={{
+                    alignSelf: 'center',
+                    marginTop: 16,
+                }}
+            >
+                <Text style={{ color: '#8CC49F', fontWeight: 'bold', fontSize: 16 }}>
+                    {isSorted ? 'Unsort' : 'Sort by Deadline'}
+                </Text>
+            </TouchableOpacity>
 
             {/* Add Task Button */}
             <TouchableOpacity
