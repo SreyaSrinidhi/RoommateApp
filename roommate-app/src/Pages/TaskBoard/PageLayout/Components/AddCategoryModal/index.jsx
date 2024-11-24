@@ -1,29 +1,36 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { TaskBoardContext } from '../../../Context';
+import { useDispatch } from 'react-redux';
+import { addCategory } from '../../../../../StateManagement/Slices/TaskBoardSlice';
 import { AntDesign } from '@expo/vector-icons';
 
-const AddCategoryModal = () => {
-    const { isAddCategoryModalVisible, setIsAddCategoryModalVisible, categories, setCategories } =
-        useContext(TaskBoardContext);
+const AddCategoryModal = ({ visible, onClose }) => {
     const [newCategoryName, setNewCategoryName] = useState('');
+    const dispatch = useDispatch();
 
     const handleAddCategory = () => {
         if (newCategoryName.trim()) {
-            setCategories([...categories, { name: newCategoryName, tasks: [] }]);
-            setNewCategoryName('');
-            setIsAddCategoryModalVisible(false);
+            dispatch(addCategory({ categoryName: newCategoryName })); // Dispatch with the correct field
+            setNewCategoryName(''); // Reset input
+            onClose(); // Close modal
+        } else {
+            alert('Category name cannot be empty!'); // Validate empty input
         }
     };
 
     const handleClose = () => {
-        setNewCategoryName('');
-        setIsAddCategoryModalVisible(false);
+        setNewCategoryName(''); // Reset input
+        onClose(); // Close modal
     };
+
+    // Render nothing if `visible` is false
+    if (!visible) {
+        return null;
+    }
 
     return (
         <Modal
-            visible={isAddCategoryModalVisible}
+            visible={visible}
             transparent={true}
             animationType="slide"
             onRequestClose={handleClose}
@@ -39,7 +46,7 @@ const AddCategoryModal = () => {
                     <TextInput
                         style={styles.input}
                         placeholder="Enter category name"
-                        placeholderTextColor="#4B225F" // Dark purple placeholder text
+                        placeholderTextColor="#4B225F"
                         value={newCategoryName}
                         onChangeText={setNewCategoryName}
                     />
@@ -57,11 +64,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     modalContainer: {
         width: '90%',
-        backgroundColor: '#FFFFFF', // White modal
+        backgroundColor: '#FFFFFF',
         borderRadius: 10,
         padding: 20,
         shadowColor: '#000',
@@ -79,7 +86,7 @@ const styles = StyleSheet.create({
     modalTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#4B225F', // Dark purple text
+        color: '#4B225F',
     },
     input: {
         width: '100%',
@@ -87,13 +94,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#F5F5F5',
         borderRadius: 5,
         paddingHorizontal: 10,
-        borderColor: '#4B225F', // Dark purple border
+        borderColor: '#4B225F',
         borderWidth: 1,
         marginBottom: 20,
-        color: '#4B225F', // Dark purple text
+        color: '#4B225F',
     },
     addButton: {
-        backgroundColor: '#A0D8B3', // Mint green
+        backgroundColor: '#A0D8B3',
         paddingVertical: 10,
         borderRadius: 5,
         alignItems: 'center',

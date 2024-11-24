@@ -1,39 +1,30 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import DateTimePickerModal from 'react-native-modal-datetime-picker'; // New Date Picker
-import { TaskBoardContext } from '../../../Context';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Picker } from '@react-native-picker/picker';
+import { useDispatch, useSelector } from 'react-redux';
+import { editTask } from '../../../../../StateManagement/Slices/TaskBoardSlice'; // Adjust path to your slice
 
 const EditTaskModal = ({ visible, onClose, task, category }) => {
     const [editedTask, setEditedTask] = useState({ ...task });
-    const [isDatePickerVisible, setDatePickerVisible] = useState(false); // For the new date picker
-    const [isPickerVisible, setPickerVisible] = useState(false); // For dropdown visibility
-    const { categories, setCategories } = useContext(TaskBoardContext);
+    const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+    const [isPickerVisible, setPickerVisible] = useState(false);
+
+    const dispatch = useDispatch();
 
     const handleSave = () => {
-        if (!editedTask || !editedTask.name || !editedTask.name.trim()) {
+        if (!editedTask.name?.trim()) {
             Alert.alert('Error', 'Task name cannot be empty!');
             return;
         }
 
-        if (!category || !category.name) {
+        if (!category?.name) {
             Alert.alert('Error', 'Invalid category data!');
             return;
         }
 
-        const updatedCategories = categories.map((cat) =>
-            cat.name === category.name
-                ? {
-                    ...cat,
-                    tasks: cat.tasks.map((t) =>
-                        t.id === editedTask.id ? editedTask : t
-                    ),
-                }
-                : cat
-        );
-
-        setCategories(updatedCategories);
+        dispatch(editTask({ categoryName: category.name, taskId: editedTask.id, updatedTask: editedTask }));
         onClose();
     };
 
@@ -56,7 +47,7 @@ const EditTaskModal = ({ visible, onClose, task, category }) => {
                 <View style={{ width: '90%', backgroundColor: '#EDEFF7', padding: 20, borderRadius: 12 }}>
                     {/* Close Button */}
                     <TouchableOpacity onPress={onClose} style={{ position: 'absolute', top: 10, right: 10 }}>
-                        <Ionicons name="close" size={24} color="#4A154B" />
+                        <Ionicons name="close" size={24} color="#4B225F" />
                     </TouchableOpacity>
 
                     {/* Title */}
@@ -99,7 +90,7 @@ const EditTaskModal = ({ visible, onClose, task, category }) => {
                             backgroundColor: '#FFFFFF',
                         }}
                         multiline
-                        blurOnSubmit={true} // Fix for keyboard dismissal
+                        blurOnSubmit={true}
                         onSubmitEditing={() => {}}
                     />
 

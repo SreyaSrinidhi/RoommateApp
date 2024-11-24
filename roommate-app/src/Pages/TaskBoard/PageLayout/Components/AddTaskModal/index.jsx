@@ -1,9 +1,10 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import DateTimePickerModal from 'react-native-modal-datetime-picker'; // New Date Picker
-import { TaskBoardContext } from '../../../Context';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Picker } from '@react-native-picker/picker';
+import { useSelector, useDispatch } from 'react-redux';
+import { addTask } from '../../../../../StateManagement/Slices/TaskBoardSlice'; // Adjust the path as necessary
 
 const AddTaskModal = ({ visible, onClose, category }) => {
     const [taskName, setTaskName] = useState('');
@@ -12,7 +13,8 @@ const AddTaskModal = ({ visible, onClose, category }) => {
     const [deadline, setDeadline] = useState('');
     const [isDatePickerVisible, setDatePickerVisible] = useState(false); // For the new date picker
     const [isPickerVisible, setPickerVisible] = useState(false); // For dropdown visibility
-    const { categories, setCategories } = useContext(TaskBoardContext);
+
+    const dispatch = useDispatch();
 
     const handleSave = () => {
         if (!taskName.trim()) {
@@ -34,16 +36,9 @@ const AddTaskModal = ({ visible, onClose, category }) => {
             status: 'pending',
         };
 
-        const updatedCategories = categories.map((cat) =>
-            cat.name === category.name
-                ? {
-                    ...cat,
-                    tasks: [...cat.tasks, newTask],
-                }
-                : cat
-        );
+        // Dispatch action to add the task
+        dispatch(addTask({ categoryName: category.name, task: newTask }));
 
-        setCategories(updatedCategories);
         resetInputs();
         onClose();
     };
@@ -56,7 +51,7 @@ const AddTaskModal = ({ visible, onClose, category }) => {
     };
 
     const handleClose = () => {
-        resetInputs(); // Reset inputs first
+        resetInputs();
         requestAnimationFrame(onClose); // Ensure modal closes immediately
     };
 

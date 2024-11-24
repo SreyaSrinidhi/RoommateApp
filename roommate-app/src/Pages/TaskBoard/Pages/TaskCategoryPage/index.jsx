@@ -1,12 +1,15 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { TaskBoardContext } from '../../Context';
+import { editTask } from '../../../../StateManagement/Slices/TaskBoardSlice';
 import AddTaskModal from './../../PageLayout/Components/AddTaskModal';
 import EditTaskModal from './../../PageLayout/Components/EditTaskModal';
 
 const TaskCategoryPage = ({ route }) => {
     const { category: initialCategory } = route.params;
-    const { categories } = useContext(TaskBoardContext);
+    const categories = useSelector((state) => state.taskBoard.categories); // Fetch categories from Redux
+    const dispatch = useDispatch();
+
     const [isAddModalVisible, setIsAddModalVisible] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -46,6 +49,12 @@ const TaskCategoryPage = ({ route }) => {
     const unsortTasks = () => {
         setSortedTasks(sortByDefault(currentCategory.tasks)); // Reset to default sorting
         setIsSorted(false); // Indicate that tasks are unsorted
+    };
+
+    // Handle editing tasks
+    const handleEditTask = (updatedTask) => {
+        dispatch(editTask({ categoryName: currentCategory.name, taskId: updatedTask.id, updatedTask }));
+        setIsEditModalVisible(false);
     };
 
     return (
@@ -130,10 +139,8 @@ const TaskCategoryPage = ({ route }) => {
                     visible={isEditModalVisible}
                     task={selectedTask}
                     category={currentCategory}
-                    onClose={() => {
-                        setSelectedTask(null);
-                        setIsEditModalVisible(false);
-                    }}
+                    onClose={() => setIsEditModalVisible(false)}
+                    onSave={handleEditTask}
                 />
             )}
         </View>

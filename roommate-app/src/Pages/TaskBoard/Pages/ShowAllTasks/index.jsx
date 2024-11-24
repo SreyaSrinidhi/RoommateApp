@@ -1,12 +1,27 @@
-import React, { useContext, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { TaskBoardContext } from '../../Context';
-import EditTaskModal from '../../PageLayout/Components/EditTaskModal';
+import { editTask } from '../../../../StateManagement/Slices/TaskBoardSlice'; // Adjust the path
+import EditTaskModal from './../../PageLayout/Components/EditTaskModal';
 
 const ShowAllTasks = ({ navigation }) => {
-    const { categories, setCategories } = useContext(TaskBoardContext);
+    const categories = useSelector((state) => state.taskBoard.categories); // Fetch categories from Redux
+    const dispatch = useDispatch();
+
     const [selectedTask, setSelectedTask] = useState(null);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+    const [userTasks, setUserTasks] = useState([]);
+    const [isSorted, setIsSorted] = useState(false); // Track sorting state
+
+    // Dynamically fetch tasks assigned to "You" whenever categories change
+    useEffect(() => {
+        const tasks = categories.flatMap((category) =>
+            category.tasks
+                .filter((task) => task.assignedTo?.toLowerCase() === 'you') // Filter tasks assigned to "You"
+                .map((task) => ({ ...task, categoryName: category.name })) // Add category reference
+        );
+        setUserTasks(sortByDefault(tasks)); // Initialize with default sort
+    }, [categories]);
 
     // Default sorting: Pending first, then Done
     const sortByDefault = (tasks) => {
@@ -15,55 +30,35 @@ const ShowAllTasks = ({ navigation }) => {
         return [...pendingTasks, ...doneTasks];
     };
 
-    // Extract tasks assigned to "You" and include the category reference
-    const userTasks = categories.flatMap((category) =>
-        category.tasks
-            .filter((task) => task.assignedTo?.toLowerCase() === 'you') // Case-insensitive filter
-            .map((task) => ({ ...task, categoryName: category.name })) // Add category name
-    );
-
-    const [sortedTasks, setSortedTasks] = useState(sortByDefault(userTasks)); // Initialize with default sort
-    const [isSorted, setIsSorted] = useState(false); // Track sorting state
-
     // Sort by Deadline
     const sortByDeadline = () => {
-        const tasksWithDeadline = [...sortedTasks].filter((task) => task.deadline);
-        const tasksWithoutDeadline = [...sortedTasks].filter((task) => !task.deadline);
+        const tasksWithDeadline = [...userTasks].filter((task) => task.deadline);
+        const tasksWithoutDeadline = [...userTasks].filter((task) => !task.deadline);
 
         // Sort tasks with deadlines in ascending order
         tasksWithDeadline.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
 
-        setSortedTasks([...tasksWithDeadline, ...tasksWithoutDeadline]); // Append tasks without deadlines at the end
+        setUserTasks([...tasksWithDeadline, ...tasksWithoutDeadline]); // Append tasks without deadlines at the end
         setIsSorted(true); // Indicate that tasks are sorted
     };
 
     // Unsort and return to default format
     const unsortTasks = () => {
-        setSortedTasks(sortByDefault(userTasks)); // Reset to default sorting
+        setUserTasks(sortByDefault(userTasks)); // Reset to default sorting
         setIsSorted(false); // Indicate that tasks are unsorted
     };
 
-    // Update task in context
-    const updateTaskInContext = (updatedTask) => {
-        const updatedCategories = categories.map((category) => {
-            if (category.name === updatedTask.categoryName) {
-                return {
-                    ...category,
-                    tasks: category.tasks.map((task) =>
-                        task.id === updatedTask.id ? updatedTask : task
-                    ),
-                };
-            }
-            return category;
-        });
-        setCategories(updatedCategories);
+    // Handle editing tasks
+    const handleEditTask = (updatedTask) => {
+        dispatch(editTask({ categoryName: updatedTask.categoryName, taskId: updatedTask.id, updatedTask }));
+        setIsEditModalVisible(false);
     };
 
     return (
         <View style={{ flex: 1, backgroundColor: '#4B225F', padding: 16 }}>
             <ScrollView>
-                {sortedTasks.length > 0 ? (
-                    sortedTasks.map((task) => (
+                {userTasks.length > 0 ? (
+                    userTasks.map((task) => (
                         <TouchableOpacity
                             key={task.id}
                             style={{
@@ -147,14 +142,8 @@ const ShowAllTasks = ({ navigation }) => {
                     visible={isEditModalVisible}
                     task={selectedTask}
                     category={{ name: selectedTask.categoryName }}
-                    onClose={() => {
-                        setSelectedTask(null);
-                        setIsEditModalVisible(false);
-                    }}
-                    onSave={(updatedTask) => {
-                        updateTaskInContext(updatedTask);
-                        setIsEditModalVisible(false);
-                    }}
+                    onClose={() => setIsEditModalVisible(false)}
+                    onSave={handleEditTask}
                 />
             )}
         </View>

@@ -1,12 +1,24 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { View, ScrollView, TouchableOpacity, Text, Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { TaskBoardContext } from '../Context';
+import { useSelector, useDispatch } from 'react-redux';
+import { addCategory } from '../../../StateManagement/Slices/TaskBoardSlice'; // Adjust the path as necessary
 import AddCategoryModal from './Components/AddCategoryModal';
 
 const TaskBoardPage = () => {
-    const { categories, setIsAddCategoryModalVisible } = useContext(TaskBoardContext);
+    const categories = useSelector((state) => state.taskBoard.categories); // Fetch categories from Redux
+    const dispatch = useDispatch();
     const navigation = useNavigation();
+    const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] = React.useState(false); // Local state for modal visibility
+
+    const handleAddCategory = (newCategoryName) => {
+        if (newCategoryName.trim()) {
+            dispatch(addCategory({ categoryName: newCategoryName })); // Dispatch Redux action to add a category
+        } else {
+            alert('Category name cannot be empty!');
+        }
+        setIsAddCategoryModalVisible(false); // Close the modal after adding
+    };
 
     return (
         <View style={{ flex: 1, backgroundColor: '#4B225F', padding: 16 }}>
@@ -46,7 +58,12 @@ const TaskBoardPage = () => {
                 color="#A0D8B3"
                 onPress={() => setIsAddCategoryModalVisible(true)}
             />
-            <AddCategoryModal />
+            {/* Add Category Modal */}
+            <AddCategoryModal
+                visible={isAddCategoryModalVisible}
+                onClose={() => setIsAddCategoryModalVisible(false)}
+                onAddCategory={handleAddCategory} // Pass the handler to the modal
+            />
         </View>
     );
 };
