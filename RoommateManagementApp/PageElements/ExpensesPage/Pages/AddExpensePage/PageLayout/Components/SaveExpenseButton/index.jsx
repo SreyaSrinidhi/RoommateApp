@@ -1,11 +1,27 @@
 import React from 'react';
 import { Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useDispatch } from 'react-redux';
+import { addExpense } from '../../../../../../../StateManagement/Slices/ExpensesSlice'; // Adjust the path as per your project structure
 
-const SaveExpenseButton = ({ onPress }) => (
-    <TouchableOpacity style={styles.button} onPress={onPress}>
-        <Text style={styles.buttonText}>Save Expense</Text>
-    </TouchableOpacity>
-);
+const SaveExpenseButton = ({ groupId, expenseData }) => {
+    const dispatch = useDispatch();
+
+    const handleSave = async () => {
+        if (!groupId || !expenseData) {
+            console.error('Group ID or expense data is missing!');
+            return;
+        }
+
+        // Dispatch the addExpense action with the groupId and expenseData
+        dispatch(addExpense({ groupId, expense: expenseData }));
+    };
+
+    return (
+        <TouchableOpacity style={styles.button} onPress={handleSave}>
+            <Text style={styles.buttonText}>Save Expense</Text>
+        </TouchableOpacity>
+    );
+};
 
 const styles = StyleSheet.create({
     button: {

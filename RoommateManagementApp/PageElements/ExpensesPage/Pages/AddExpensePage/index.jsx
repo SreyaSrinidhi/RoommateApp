@@ -1,7 +1,5 @@
-// AddExpenseScreen.jsx
-
-import React, {useState, useEffect, useLayoutEffect} from 'react';
-import {Alert, TouchableOpacity, View} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Alert, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { addExpense } from "@/StateManagement/Slices/ExpensesSlice";
 import Layout from './PageLayout';
@@ -14,10 +12,9 @@ import MembersModal from './PageLayout/Components/MembersModal';
 import SplitPercentageModal from './PageLayout/Components/SplitPercentageModal';
 import SaveExpenseButton from './PageLayout/Components/SaveExpenseButton';
 import Ionicons from "react-native-vector-icons/Ionicons";
-import {useRouter} from "expo-router";
+import { useRouter } from "expo-router";
 
-
-const AddExpenseScreen = () => {
+const AddExpenseScreen = ({ groupId }) => {
     const router = useRouter();
     const dispatch = useDispatch();
     const membersData = useSelector((state) => state.expenses.friends);
@@ -67,6 +64,11 @@ const AddExpenseScreen = () => {
             return;
         }
 
+        if (!groupId) {
+            Alert.alert("Missing Group", "Group ID is required to save the expense.");
+            return;
+        }
+
         const expenseData = {
             description,
             amount: parseFloat(amount),
@@ -76,7 +78,7 @@ const AddExpenseScreen = () => {
             members: selectedMembers,
         };
 
-        dispatch(addExpense(expenseData));
+        dispatch(addExpense({ groupId, expense: expenseData })); // Pass groupId to Redux action
         Alert.alert("Success", "Expense has been saved.");
         router.back();
     };
@@ -90,7 +92,7 @@ const AddExpenseScreen = () => {
                 <AmountInput value={amount} onChangeText={setAmount} />
             </Layout.Field>
             <Layout.Field>
-                <PaymentInfo splitType={splitType}  onPressSplit={() => setSplitModalVisible(true)} />
+                <PaymentInfo splitType={splitType} onPressSplit={() => setSplitModalVisible(true)} />
             </Layout.Field>
             <Layout.Field>
                 <AddMembersButton onPress={() => setModalVisible(true)} />

@@ -1,59 +1,53 @@
-// src/StateManagement/Slices/ExpensesSlice.js
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { db } from '../../firebase.config';
+import { collection, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
 
-const initialState = {
-    friends: [
-        {id:'18', name: 'Virat Kohli'},
-        {id: '2', name: "Sunil Gavaskar"},
-        {id:"10", name: "Sachin Tendulkar"},
-        {id:"45", name: "Rohit Sharma"},
-        {id: '7', name: 'MS Dhoni'},
-        // Add more friends if needed
-    ],
-    expenses: [
-        { id: '1', friendId: '18', date: 'Mar 18', description: "Ellie's bakery", amount: 51.36, type: 'borrowed' },
-        { id: '4', friendId: '18', date: 'Mar 18', description: "Ben Stokes", amount: 21.36, type: 'borrowed' },
-        { id: '2', friendId: '10', date: 'Mar 10', description: 'Fuel up', amount: 24.03, type: 'lent' },
-        { id: '3', friendId: '45', date: 'Mar 06', description: 'Movie night', amount: 2.5, type: 'lent' },
-    ],
-};
+// Fetch expenses for a specific group
+export const fetchExpensesByGroup = createAsyncThunk('expenses/fetchExpensesByGroup', async (groupId) => {
+    const expenses = [];
+    const expensesCollection = collection(db, `groups/${groupId}/expenses`);
+    const snapshot = await getDocs(expensesCollection);
+    snapshot.forEach((doc) => {
+        expenses.push({ id: doc.id, ...doc.data() });
+    });
+    return expenses;
+});
+
+// Add an expense to a group
+export const addExpense = createAsyncThunk('expenses/addExpense', async ({ groupId, expense }) => {
+    const docRef = await addDoc(collection(db, `groups/${groupId}/expenses`), expense);
+    return { id: docRef.id, ...expense };
+});
+
+// Delete an expense from a group
+export const deleteExpense = createAsyncThunk('expenses/deleteExpense', async ({ groupId, expenseId }) => {
+    await deleteDoc(doc(db, `groups/${groupId}/expenses/${expenseId}`));
+    return expenseId;
+});
 
 const expensesSlice = createSlice({
     name: 'expenses',
-    initialState,
-    reducers: {
-        addExpense: (state, action) => {
-            const baseId = `${Date.now()}`; // Generate a unique base ID for each batch
-            const newExpenses = transformExpense({ ...action.payload, id: baseId });
-            state.expenses.push(...newExpenses);
-        },
-        settleExpense: (state, action) => {
-            const { expenseId } = action.payload;
-            state.expenses = state.expenses.filter(expense => expense.id !== expenseId);
-        },
+    initialState: {
+        expenses: [],
+        loading: false,
+    },
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchExpensesByGroup.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(fetchExpensesByGroup.fulfilled, (state, action) => {
+                state.loading = false;
+                state.expenses = action.payload;
+            })
+            .addCase(addExpense.fulfilled, (state, action) => {
+                state.expenses.push(action.payload);
+            })
+            .addCase(deleteExpense.fulfilled, (state, action) => {
+                state.expenses = state.expenses.filter((expense) => expense.id !== action.payload);
+            });
     },
 });
 
-function transformExpense(expense) {
-    const friendIds = expense.members.filter((member) => member !== 'You'); // Exclude "You"
-
-    return friendIds.map((friendId, index) => {
-        // Retrieve the percentage for this friend
-        const friendPercentage = parseFloat(expense.splitPercentages[friendId]);
-
-        // Calculate the split amount for this friend
-        const splitAmount = expense.amount * (friendPercentage / 100);
-
-        return {
-            id: `${expense.id}-${index}`, // Unique ID for each friend's expense
-            friendId: friendId,
-            date: expense.date,
-            description: expense.description,
-            amount: splitAmount,
-            type: 'lent',
-        };
-    });
-}
-
-export const { addExpense, settleExpense } = expensesSlice.actions;
 export default expensesSlice.reducer;

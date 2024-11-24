@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { settleExpense } from '@/StateManagement/Slices/ExpensesSlice';
+import { settleExpense } from '../../../../StateManagement/Slices/ExpensesSlice';
 import Layout from './PageLayout';
 import BalanceHeader from './PageLayout/Components/BalanceHeader';
 import ExpenseItem from './PageLayout/Components/ExpenseItem';

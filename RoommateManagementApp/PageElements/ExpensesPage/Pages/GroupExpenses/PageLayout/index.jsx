@@ -1,63 +1,89 @@
-import React from 'react';
-import { View, Modal, TouchableWithoutFeedback, FlatList, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchExpensesByGroup } from '../../../../../StateManagement/Slices/ExpensesSlice'; // Adjust path as necessary
+import ExpenseItem from './Components/ExpenseItem'; // Your existing ExpenseItem component
 
-const Layout = ({ children, ...restProps }) => {
+const GroupExpensesPage = ({ groupId }) => {
+    const dispatch = useDispatch();
+    const expenses = useSelector((state) => state.expenses.expenses);
+    const loading = useSelector((state) => state.expenses.loading);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        if (groupId) {
+            dispatch(fetchExpensesByGroup(groupId))
+                .unwrap() // Unwrap the promise to handle errors
+                .catch((err) => {
+                    console.error('Error fetching expenses:', err);
+                    setError('Failed to load expenses. Please try again.');
+                });
+        } else {
+            setError('Group ID is missing. Please select a group.');
+        }
+    }, [dispatch, groupId]);
+
     return (
-        <View style={styles.layout} {...restProps}>
-            {children}
-        </View>
+        <Layout>
+            {/* Group Balance Section */}
+            <Layout.BalanceSection>
+                <Text style={styles.balanceText}>Group Balance</Text>
+                {/* Example Placeholder for Group Balance */}
+                <Text style={styles.balanceValue}>$100.00</Text>
+            </Layout.BalanceSection>
+
+            {/* Expenses List */}
+            <Layout.ScrollSection
+                data={expenses}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => <ExpenseItem {...item} />}
+            />
+
+            {/* Loading Indicator */}
+            {loading && (
+                <View style={styles.loadingContainer}>
+                    <Text style={styles.loadingText}>Loading expenses...</Text>
+                </View>
+            )}
+
+            {/* Error Message */}
+            {error && (
+                <View style={styles.errorContainer}>
+                    <Text style={styles.errorText}>{error}</Text>
+                </View>
+            )}
+        </Layout>
     );
 };
 
-Layout.BalanceSection = ({ children, ...restProps }) => (
-    <View style={styles.balanceSection} {...restProps}>
-        {children}
-    </View>
-);
-
-Layout.ScrollSection = ({ children, ...restProps }) => (
-    <FlatList
-        style={styles.scrollSection}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        {...restProps}
-    >
-        {children}
-    </FlatList>
-);
-
-Layout.SettleExpenseModal = ({ visible, children, onClose }) => (
-    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
-        <TouchableWithoutFeedback onPress={onClose}>
-            <View style={styles.modalBackdrop}>
-                <TouchableWithoutFeedback>
-                    {children}
-                </TouchableWithoutFeedback>
-            </View>
-        </TouchableWithoutFeedback>
-    </Modal>
-);
-
 const styles = StyleSheet.create({
-    layout: {
-        flex: 1,
-        backgroundColor: '#4A154B',
-        padding: 16,
+    balanceText: {
+        fontSize: 18,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
     },
-    balanceSection: {
-        marginBottom: 20,
+    balanceValue: {
+        fontSize: 24,
+        color: '#FFD700',
+        fontWeight: 'bold',
+        marginTop: 8,
     },
-    scrollSection: {
-        flex: 1,
-    },
-    separator: {
-        height: 12,
-    },
-    modalBackdrop: {
-        flex: 1,
-        justifyContent: 'center',
+    loadingContainer: {
+        marginTop: 20,
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    loadingText: {
+        fontSize: 16,
+        color: '#FFFFFF',
+    },
+    errorContainer: {
+        marginTop: 20,
+        alignItems: 'center',
+    },
+    errorText: {
+        fontSize: 16,
+        color: '#FF6347',
     },
 });
 
-export default Layout;
+export default GroupExpensesPage;
