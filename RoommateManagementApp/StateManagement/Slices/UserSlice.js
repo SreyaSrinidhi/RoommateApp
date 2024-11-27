@@ -56,7 +56,7 @@ export const saveFCMToken = createAsyncThunk(
             console.log("FCM token saved:", fcmToken);
             return fcmToken;
         } catch (error) {
-            console.error("Failed to save FCM token:", error);
+            // console.error("Failed to save FCM token:", error);
             return rejectWithValue(error.message);
         }
     }

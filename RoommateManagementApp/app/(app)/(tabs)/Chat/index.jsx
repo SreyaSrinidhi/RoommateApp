@@ -3,7 +3,9 @@ import {useDispatch, useSelector} from "react-redux";
 import {FlatList, View} from "react-native";
 import ChatBubble from "@/PageElements/ChatPage/Components/ChatBubble";
 import MessageInput from "@/PageElements/ChatPage/Components/MessageInput";
-import {loadMessages, subscribeToMessages} from "@/StateManagement/Slices/ChatSlice";
+import {loadMessages, subscribeToMessages, updateChatHistory} from "@/StateManagement/Slices/ChatSlice";
+import {collection, onSnapshot, orderBy, query} from "firebase/firestore";
+import {db} from "@/firebase.config";
 
 export default function ChatScreen() {
     const chatHistory = useSelector(state => state.chat.chatHistory);
@@ -12,17 +14,38 @@ export default function ChatScreen() {
 
 
     useEffect(() => {
-        // Load existing messages once
-        dispatch(loadMessages(groupID));
+        let unsubscribe;
 
-        // Set up real-time subscription
-        const unsubscribe = dispatch(subscribeToMessages(groupID));
+        const setupSubscription = async () => {
+            try {
+                const chatCollectionRef = collection(db, "groups", groupID, "chats");
+                const chatQuery = query(chatCollectionRef, orderBy("timestamp", "asc"));
+
+                // Set up the listener and store the unsubscribe function
+                unsubscribe = onSnapshot(chatQuery, (snapshot) => {
+                    const messages = snapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        ...doc.data(),
+                        timestamp: doc.data().timestamp?.toDate().toISOString()
+                    }));
+
+                    // Dispatch the messages to Redux
+                    dispatch(updateChatHistory(messages));
+                });
+            } catch (error) {
+                console.error("Failed to set up chat subscription:", error);
+            }
+        };
+
+        setupSubscription();
 
         // Cleanup subscription on component unmount
         return () => {
-            if (typeof unsubscribe === "function") unsubscribe();
+            if (unsubscribe) {
+                unsubscribe();
+            }
         };
-    }, [groupID, dispatch]);
+    }, [dispatch, groupID]);
 
     return (
         <View style={styles.container} testID='chat-main-page'>

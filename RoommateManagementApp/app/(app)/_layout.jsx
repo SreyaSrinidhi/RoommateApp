@@ -24,7 +24,7 @@ export default function RootLayout() {
         const token = await messaging().getToken();
         dispatch(saveFCMToken({ uid: id, fcmToken: token }));
       } catch (error) {
-        console.error("Error fetching FCM token:", error);
+        // console.error("Error fetching FCM token:", error);
       }
     };
     fetchFCMToken();

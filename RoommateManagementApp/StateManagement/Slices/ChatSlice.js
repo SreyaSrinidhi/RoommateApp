@@ -4,24 +4,27 @@ import { db } from "@/firebase.config"; // Replace with your Firebase config pat
 
 export const subscribeToMessages = createAsyncThunk(
     "chat/subscribeToMessages",
-    (groupID, { dispatch, rejectWithValue }) => {
+    async (groupID, { dispatch, rejectWithValue }) => {
         try {
             const chatCollectionRef = collection(db, "groups", groupID, "chats");
             const chatQuery = query(chatCollectionRef, orderBy("timestamp", "asc"));
 
             // Set up the real-time listener
             const unsubscribe = onSnapshot(chatQuery, (snapshot) => {
-                const messages = snapshot.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
+                const messages = snapshot.docs.map((doc) => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        ...data,
+                        timestamp: data.timestamp?.toDate().toISOString(), // Convert to ISO string
+                    };
+                });
 
                 // Dispatch an action to update chat history
                 dispatch(chatSlice.actions.updateChatHistory(messages));
             });
 
-            // Return the unsubscribe function to stop listening if needed
-            return unsubscribe;
+            return { success: true }; // Return serializable data
         } catch (error) {
             console.error("Failed to subscribe to messages:", error);
             return rejectWithValue(error.message);
@@ -34,7 +37,6 @@ export const sendMessage = createAsyncThunk(
     "chat/sendMessage",
     async ({ groupID, senderID, text }, { rejectWithValue }) => {
         try {
-            // Reference the group's chats subcollection
             const chatCollectionRef = collection(db, "groups", groupID, "chats");
 
             // Create the message document
@@ -42,14 +44,16 @@ export const sendMessage = createAsyncThunk(
                 id: `${Date.now()}-${senderID}`,
                 senderID,
                 text,
-                timestamp: new Date(),
+                timestamp: new Date(), // Save as a Date object
             };
 
             // Add the message to Firestore
             await addDoc(chatCollectionRef, message);
 
             console.log("Message sent:", message);
-            return message; // Return the message for local state update
+
+            // Convert timestamp to ISO string for Redux state
+            return { ...message, timestamp: message.timestamp.toISOString() };
         } catch (error) {
             console.error("Failed to send message:", error);
             return rejectWithValue(error.message);
@@ -67,10 +71,14 @@ export const loadMessages = createAsyncThunk(
             const chatQuery = query(chatCollectionRef, orderBy("timestamp", "asc"));
             const snapshot = await getDocs(chatQuery);
 
-            const messages = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
+            const messages = snapshot.docs.map((doc) => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    timestamp: data.timestamp?.toDate().toISOString(), // Convert to ISO string
+                };
+            });
 
             console.log("Messages loaded:", messages);
             return messages; // Return messages to update the state
@@ -125,5 +133,7 @@ const chatSlice = createSlice({
             });
     },
 });
+
+export const { updateChatHistory } = chatSlice.actions;
 
 export default chatSlice.reducer;
