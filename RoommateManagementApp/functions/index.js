@@ -52,26 +52,34 @@ exports.sendChatMessageNotification = functions.firestore
 
     })
 
-exports.sendEmergencyNotification = functions.firestore
-    .onDocumentCreated("groups/{groupId}/emergencyNotifications/{notificationId}", async (snapshot, context) => {
+    exports.sendEmergencyNotification = functions.firestore
+    .onDocumentCreated("groups/{groupId}/emergencynotifications/{notificationId}", async (snapshot, context) => {
+        console.log("Context Params:", context.params);
+        console.log("Snapshot Data:", snapshot.data());
+        
         const groupId = context.params.groupId;
-
+        const notificationId = context.params.notificationId;
+        console.log(`GroupId: ${groupId}, NotificationId: ${notificationId}`);
         // Get emergency notification data
         const { triggeredBy, buttonTitle, timestamp } = snapshot.data();
 
-        // Fetch group information
-        const groupDoc = await admin.firestore().collection("groups").doc(groupId).get();
+        // Fetch the group data to get members
+        const groupDoc = await admin.firestore()
+            .collection("groups")
+            .doc(groupId)
+            .get();
+
         const group = groupDoc.data();
         const members = group.members;
 
-        // Prepare notification payload
+        // Prepare the notification payload
         const notification = {
             title: `Emergency Alert: ${buttonTitle}`,
             body: `Triggered by ${triggeredBy} at ${new Date(timestamp).toLocaleString()}`,
         };
 
-        // Send notifications to all members
-        const promises = members.map(async (member) => {
+        // Send notifications to each member
+        members.forEach(async (member) => {
             const userDoc = await admin.firestore().collection("users").doc(member).get();
             const user = userDoc.data();
 
@@ -81,14 +89,7 @@ exports.sendEmergencyNotification = functions.firestore
                     token: user.fcmToken,
                 };
 
-                try {
-                    await admin.messaging().send(message);
-                } catch (error) {
-                    console.error(`Failed to send notification to ${member}:`, error);
-                }
+                await sendNotification(message); // Use the sendNotification helper
             }
         });
-
-        await Promise.all(promises);
     });
-
